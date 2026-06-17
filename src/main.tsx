@@ -6,12 +6,17 @@ import {
   BrainCircuit,
   Code2,
   DatabaseZap,
+  FileText,
+  Languages,
   Mail,
   MessageCircle,
+  Palette,
   Phone,
   Route,
   Send,
+  Sparkles,
   TestTube2,
+  Workflow,
 } from 'lucide-react';
 import {
   motion,
@@ -64,6 +69,54 @@ const projects = [
     description:
       '基于已有算法更新智能排程应用的功能设计和交互设计，并借助 Kiro 平台搭建新的应用 demo，降低用户理解和使用智能排程能力的门槛。',
     highlights: ['功能设计', '交互设计', 'Kiro 搭建', '智能排程'],
+  },
+];
+
+const professionalSkills = [
+  {
+    title: 'AI 应用与 Agent 开发',
+    label: 'AI Stack',
+    level: 94,
+    icon: Sparkles,
+    summary:
+      '熟练使用 Codex、Claude Code、Kiro 等智能体平台进行产品设计、产品开发、Demo 搭建；熟练运用 Coze、Dify 等低代码平台进行工作流搭建和 Agent 开发。',
+    tools: ['Codex', 'Claude Code', 'Kiro', 'Coze', 'Dify', 'Agent Workflow'],
+  },
+  {
+    title: '英语与跨文化沟通',
+    label: 'Language',
+    level: 86,
+    icon: Languages,
+    summary:
+      '英语六级 500+，具备熟练的英语听说读写能力，能够快速浏览英语专业文件及书籍，并多次参加学校组织的海外交流访学活动。',
+    tools: ['CET-6 500+', '英文文档阅读', '美国赛', '西班牙暑期营'],
+  },
+  {
+    title: '设计与产品表达',
+    label: 'Design',
+    level: 88,
+    icon: Palette,
+    summary:
+      '熟悉 Figma、Axure、AutoCAD、Photoshop、Pr 等设计软件，能够完成产品原型、视觉表达、工程图纸与演示材料的设计协同。',
+    tools: ['Figma', 'Axure', 'AutoCAD', 'Photoshop', 'Premiere Pro'],
+  },
+  {
+    title: '数据处理与分析',
+    label: 'Data',
+    level: 82,
+    icon: Workflow,
+    summary:
+      '熟练运用 Python、Matlab 等工具处理数据，能够围绕业务问题进行结构化拆解、指标分析和实验验证。',
+    tools: ['Python', 'Matlab', '数据分析', '指标拆解'],
+  },
+  {
+    title: 'Office 与汇报交付',
+    label: 'Delivery',
+    level: 92,
+    icon: FileText,
+    summary:
+      '精通 Word、Excel、PowerPoint，能够完成结构化文档、数据表格、项目汇报和面向业务方的方案表达。',
+    tools: ['Word', 'Excel', 'PowerPoint', '报告撰写', 'PPT 汇报'],
   },
 ];
 
@@ -1293,6 +1346,142 @@ function ProjectTile({
   );
 }
 
+function ProfessionalSkillsSection() {
+  const [activeSkill, setActiveSkill] = React.useState(0);
+  const active = professionalSkills[activeSkill];
+  const ActiveIcon = active.icon;
+  const orbitRadius = 34;
+
+  return (
+    <section
+      id="skills"
+      className="relative overflow-hidden bg-[#0C0C0C] px-5 py-20 sm:px-8 sm:py-24 md:px-10 md:py-32"
+    >
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_12%,rgba(187,204,215,0.1),transparent_28%),radial-gradient(circle_at_12%_70%,rgba(182,0,168,0.13),transparent_30%)]" />
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#D7E2EA]/22 to-transparent" />
+
+      <div className="relative z-10 mx-auto max-w-7xl">
+        <FadeIn
+          y={24}
+          className="text-lg font-light tracking-wide text-[#BBCCD7] sm:text-2xl md:text-3xl"
+        >
+          Professional toolkit
+        </FadeIn>
+        <FadeIn
+          as="h2"
+          delay={0.08}
+          y={40}
+          className="hero-heading mt-4 text-[clamp(4rem,12vw,150px)] font-black uppercase leading-none tracking-tight"
+        >
+          Skills
+        </FadeIn>
+
+        <div className="mt-12 grid gap-8 md:mt-16 lg:grid-cols-[0.96fr_1.04fr]">
+          <FadeIn
+            delay={0.12}
+            y={34}
+            className="relative min-h-[560px] overflow-hidden rounded-[36px] border border-[#D7E2EA]/14 bg-[#111]/76 p-5 shadow-[0_34px_110px_rgba(0,0,0,0.42)] sm:p-8"
+          >
+            <motion.div
+              className="pointer-events-none absolute left-1/2 top-1/2 h-[360px] w-[360px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-[#D7E2EA]/10"
+              animate={{ rotate: 360 }}
+              transition={{ duration: 18, repeat: Infinity, ease: 'linear' }}
+            >
+              <div className="absolute left-1/2 top-0 h-24 w-px -translate-x-1/2 bg-gradient-to-b from-[#BBCCD7]/70 to-transparent" />
+            </motion.div>
+            <div className="pointer-events-none absolute left-1/2 top-1/2 h-[270px] w-[270px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-dashed border-[#D7E2EA]/12" />
+            <div className="pointer-events-none absolute left-1/2 top-1/2 h-[190px] w-[190px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-[#D7E2EA]/10 bg-[radial-gradient(circle,rgba(182,0,168,0.16),transparent_64%)]" />
+
+            <div className="absolute left-1/2 top-1/2 flex h-32 w-32 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-[#D7E2EA]/18 bg-[#0C0C0C] text-[#D7E2EA] shadow-[0_0_70px_rgba(182,0,168,0.24)]">
+              <div className="flex flex-col items-center gap-2">
+                <ActiveIcon size={34} strokeWidth={1.65} />
+                <span className="text-[0.62rem] font-bold uppercase tracking-[0.22em] text-[#BBCCD7]/70">
+                  {active.label}
+                </span>
+              </div>
+            </div>
+
+            {professionalSkills.map((skill, index) => {
+              const angle = (index / professionalSkills.length) * Math.PI * 2 - Math.PI / 2;
+              const x = 50 + Math.cos(angle) * orbitRadius;
+              const y = 50 + Math.sin(angle) * orbitRadius;
+              const Icon = skill.icon;
+              const isActive = activeSkill === index;
+
+              return (
+                <button
+                  key={skill.title}
+                  type="button"
+                  className={`absolute flex h-[92px] w-[112px] -translate-x-1/2 -translate-y-1/2 cursor-pointer flex-col items-center justify-center gap-1.5 rounded-[26px] border text-center transition duration-300 hover:scale-[1.04] active:scale-95 ${
+                    isActive
+                      ? 'border-[#D7E2EA] bg-[#D7E2EA] text-[#0C0C0C] shadow-[0_0_44px_rgba(187,204,215,0.28)]'
+                      : 'border-[#D7E2EA]/14 bg-white/[0.045] text-[#D7E2EA] hover:border-[#D7E2EA]/44 hover:bg-white/[0.08]'
+                  }`}
+                  style={{ left: `${x}%`, top: `${y}%` }}
+                  onClick={() => setActiveSkill(index)}
+                >
+                  <Icon size={22} strokeWidth={1.7} />
+                  <span className="px-2 text-[0.64rem] font-bold uppercase leading-tight tracking-[0.16em]">
+                    {skill.label}
+                  </span>
+                  <span
+                    className={`mt-0.5 inline-flex items-center gap-1 text-[0.52rem] font-bold uppercase tracking-[0.18em] ${
+                      isActive ? 'text-[#0C0C0C]/46' : 'text-[#BBCCD7]/42'
+                    }`}
+                  >
+                    Click
+                    <ArrowUpRight size={10} strokeWidth={2.2} />
+                  </span>
+                </button>
+              );
+            })}
+          </FadeIn>
+
+          <FadeIn delay={0.22} y={34}>
+            <div className="rounded-[36px] border border-[#D7E2EA]/14 bg-white/[0.035] p-6 text-[#D7E2EA] shadow-[0_34px_110px_rgba(0,0,0,0.36)] sm:p-8">
+              <div className="flex items-start justify-between gap-6">
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-[0.28em] text-[#BBCCD7]/62">
+                    Active Skill
+                  </p>
+                  <h3 className="mt-4 text-[clamp(2rem,5vw,4.6rem)] font-black leading-none tracking-tight">
+                    {active.title}
+                  </h3>
+                </div>
+                <div className="shrink-0 rounded-full border border-[#D7E2EA]/16 px-4 py-2 text-sm font-black tracking-[0.18em] text-[#BBCCD7]">
+                  {active.level}%
+                </div>
+              </div>
+
+              <div className="mt-8 h-3 overflow-hidden rounded-full bg-white/[0.06]">
+                <div
+                  className="h-full rounded-full bg-[linear-gradient(90deg,#646973,#BBCCD7,#B600A8)]"
+                  style={{ width: `${active.level}%` }}
+                />
+              </div>
+
+              <p className="mt-8 text-base font-light leading-relaxed text-[#D7E2EA]/72 sm:text-lg">
+                {active.summary}
+              </p>
+
+              <div className="mt-9 grid gap-3 sm:grid-cols-2">
+                {active.tools.map((tool) => (
+                  <div
+                    key={tool}
+                    className="rounded-2xl border border-[#D7E2EA]/12 bg-[#0C0C0C]/54 px-4 py-3 text-sm font-medium tracking-wide text-[#D7E2EA]/74"
+                  >
+                    {tool}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </FadeIn>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 const contactItems = [
   {
     label: 'Phone',
@@ -1414,6 +1603,7 @@ function App() {
       <UniversityCurveSection />
       <ExperienceSection />
       <ProjectsSection />
+      <ProfessionalSkillsSection />
       <ContactSection />
     </main>
   );
