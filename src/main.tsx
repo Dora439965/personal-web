@@ -884,38 +884,74 @@ function UniversityCurveSection() {
         </div>
 
         <motion.div
-          className="mx-auto mt-8 w-[min(88%,620px)] rounded-[28px] border border-[#D7E2EA]/20 bg-[#0C0C0C]/82 p-5 text-center text-[#D7E2EA] shadow-[0_20px_80px_rgba(0,0,0,0.45)] backdrop-blur-xl sm:p-6"
+          className="relative mx-auto mt-8 w-[min(90%,640px)] overflow-hidden rounded-[28px] p-[1.5px] shadow-[0_24px_90px_rgba(0,0,0,0.5)]"
+          style={{
+            background:
+              'linear-gradient(135deg, rgba(182,0,168,0.55) 0%, rgba(118,33,176,0.28) 38%, rgba(187,204,215,0.18) 70%, rgba(190,76,0,0.4) 100%)',
+          }}
           animate={{
             opacity: activeMilestone || !hasInteracted ? 1 : 0,
             y: activeMilestone || !hasInteracted ? 0 : 14,
           }}
+          transition={{ duration: 0.4, ease: [0.25, 0.1, 0.25, 1] }}
         >
-          {activeMilestone && (
-            <>
-              <p className="text-sm font-medium uppercase tracking-[0.35em] text-[#BBCCD7]/70">
-                {activeMilestone.year}
-              </p>
-              <h3 className="mt-2 text-[clamp(1.4rem,3vw,2.4rem)] font-black uppercase leading-none tracking-tight text-white">
-                {activeMilestone.title}
-              </h3>
-              <p className="mx-auto mt-4 max-w-xl text-sm font-light leading-relaxed sm:text-base">
-                {activeMilestone.description}
-              </p>
-            </>
-          )}
-          {!hasInteracted && (
-            <>
-              <p className="text-sm font-medium uppercase tracking-[0.35em] text-[#BBCCD7]/70">
-                Drag to reveal
-              </p>
-              <h3 className="mt-2 text-[clamp(1.25rem,3vw,2.2rem)] font-black uppercase leading-none tracking-tight text-white">
-                拖动小人查看大学阶段
-              </h3>
-              <p className="mx-auto mt-4 max-w-xl text-sm font-light leading-relaxed text-[#D7E2EA]/72 sm:text-base">
-                将小人拖到折线图上的年份节点，才会显示该阶段的经历与成就。
-              </p>
-            </>
-          )}
+          <div className="relative overflow-hidden rounded-[27px] bg-[#0C0C0C]/90 px-7 py-8 text-center text-[#D7E2EA] backdrop-blur-xl sm:px-10 sm:py-9">
+            <div className="pointer-events-none absolute -top-20 left-1/2 h-40 w-40 -translate-x-1/2 rounded-full bg-[#B600A8]/25 blur-[60px]" />
+            {activeMilestone && (
+              <div key={activeMilestone.year} className="relative">
+                <motion.span
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.45 }}
+                  className="inline-flex items-center rounded-full px-4 py-1 text-xs font-semibold tracking-[0.4em] text-white"
+                  style={{
+                    background:
+                      'linear-gradient(123deg, #18011F 0%, #B600A8 45%, #7621B0 100%)',
+                    boxShadow: '0 6px 18px rgba(181,1,167,0.35)',
+                  }}
+                >
+                  {activeMilestone.year}
+                </motion.span>
+                <motion.h3
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: 0.05 }}
+                  className="mt-5 text-[clamp(1.5rem,3.4vw,2.6rem)] font-black uppercase leading-none tracking-tight text-white"
+                >
+                  {activeMilestone.title}
+                </motion.h3>
+                <motion.div
+                  initial={{ scaleX: 0 }}
+                  animate={{ scaleX: 1 }}
+                  transition={{ duration: 0.5, delay: 0.12 }}
+                  className="mx-auto mt-5 h-px w-16 origin-center bg-gradient-to-r from-transparent via-[#BBCCD7]/70 to-transparent"
+                />
+                <motion.p
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: 0.16 }}
+                  className="mx-auto mt-5 max-w-xl text-sm font-light leading-relaxed text-[#D7E2EA]/90 sm:text-base"
+                >
+                  {activeMilestone.description}
+                </motion.p>
+              </div>
+            )}
+            {!hasInteracted && (
+              <div className="relative">
+                <span className="inline-flex items-center gap-2 rounded-full border border-[#D7E2EA]/25 px-4 py-1 text-xs font-medium uppercase tracking-[0.35em] text-[#BBCCD7]/80">
+                  <Sparkles size={13} strokeWidth={2.2} />
+                  Drag to reveal
+                </span>
+                <h3 className="mt-5 text-[clamp(1.3rem,3vw,2.2rem)] font-black uppercase leading-none tracking-tight text-white">
+                  拖动小人查看大学阶段
+                </h3>
+                <div className="mx-auto mt-5 h-px w-16 bg-gradient-to-r from-transparent via-[#BBCCD7]/70 to-transparent" />
+                <p className="mx-auto mt-5 max-w-xl text-sm font-light leading-relaxed text-[#D7E2EA]/72 sm:text-base">
+                  将小人拖到折线图上的年份节点，或直接点击节点，查看该阶段的经历与成就。
+                </p>
+              </div>
+            )}
+          </div>
         </motion.div>
       </div>
     </section>
