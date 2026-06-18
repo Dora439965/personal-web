@@ -25,7 +25,7 @@ import {
 } from 'framer-motion';
 import './styles.css';
 
-const heroPortraitGif = new URL('./liam2.GIF', import.meta.url).href;
+const heroPortraitVideo = new URL('./liam.mp4', import.meta.url).href;
 
 const marqueeImages = [
   'https://motionsites.ai/assets/hero-space-voyage-preview-eECLH3Yc.gif',
@@ -246,45 +246,14 @@ function HeroPortrait() {
       <FadeIn delay={0.6} y={30} className="relative w-full">
         <Magnet padding={170} strength={18} maxOffset={34} className="relative">
           <motion.div className="relative w-full select-none">
-            <motion.span
-              className="pointer-events-none absolute -inset-[38%] z-0 rounded-full blur-[54px] mix-blend-screen"
-              animate={{
-                opacity: [0.72, 1, 0.82, 0.96, 0.72],
-                scale: [0.9, 1.14, 1, 1.18, 0.9],
-                background: [
-                  `radial-gradient(circle, rgba(187,204,215,0.72) 0%, rgba(187,204,215,0.42) 26%, rgba(187,204,215,0.16) 50%, rgba(12,12,12,0) 76%)`,
-                  `radial-gradient(circle, rgba(182,0,168,0.66) 0%, rgba(118,33,176,0.48) 28%, rgba(182,0,168,0.18) 52%, rgba(12,12,12,0) 78%)`,
-                  `radial-gradient(circle, rgba(190,76,0,0.6) 0%, rgba(255,184,107,0.36) 28%, rgba(190,76,0,0.16) 52%, rgba(12,12,12,0) 78%)`,
-                ],
-              }}
-              transition={{
-                duration: 9,
-                repeat: Infinity,
-                ease: 'easeInOut',
-              }}
-            />
-            <motion.span
-              className="pointer-events-none absolute -inset-[4%] z-0 rounded-full blur-2xl mix-blend-screen"
-              animate={{
-                opacity: [0.48, 0.76, 0.56, 0.72, 0.48],
-                scale: [0.98, 1.1, 1.03, 1.12, 0.98],
-                background: [
-                  `radial-gradient(circle, rgba(255,255,255,0.28) 0%, rgba(187,204,215,0.38) 26%, rgba(187,204,215,0.1) 58%, rgba(12,12,12,0) 74%)`,
-                  `radial-gradient(circle, rgba(255,255,255,0.2) 0%, rgba(242,181,255,0.42) 26%, rgba(118,33,176,0.14) 58%, rgba(12,12,12,0) 74%)`,
-                  `radial-gradient(circle, rgba(255,255,255,0.2) 0%, rgba(255,184,107,0.38) 26%, rgba(190,76,0,0.12) 58%, rgba(12,12,12,0) 74%)`,
-                ],
-              }}
-              transition={{
-                duration: 9,
-                repeat: Infinity,
-                ease: 'easeInOut',
-              }}
-            />
-            <motion.img
-              src={heroPortraitGif}
-              alt="Liu He portrait"
+            <motion.video
+              src={heroPortraitVideo}
+              autoPlay
+              loop
+              muted
+              playsInline
+              aria-label="Liu He portrait animation"
               className="hero-portrait-gif relative z-10 w-full object-contain drop-shadow-[0_24px_60px_rgba(0,0,0,0.55)]"
-              draggable={false}
             />
 
           </motion.div>
@@ -366,9 +335,29 @@ function Navbar() {
   );
 }
 
+function HeroAtmosphere() {
+  return (
+    <div className="hero-atmosphere pointer-events-none absolute inset-0 z-0 overflow-hidden" aria-hidden="true">
+      <span className="hero-atmosphere__grid" />
+      <span className="hero-atmosphere__scan hero-atmosphere__scan--left" />
+      <span className="hero-atmosphere__scan hero-atmosphere__scan--right" />
+      <span className="hero-atmosphere__beam hero-atmosphere__beam--left" />
+      <span className="hero-atmosphere__beam hero-atmosphere__beam--right" />
+      <span className="hero-atmosphere__arc hero-atmosphere__arc--left" />
+      <span className="hero-atmosphere__arc hero-atmosphere__arc--right" />
+      <span className="hero-atmosphere__rail hero-atmosphere__rail--top" />
+      <span className="hero-atmosphere__rail hero-atmosphere__rail--bottom" />
+      <span className="hero-atmosphere__ticks hero-atmosphere__ticks--left" />
+      <span className="hero-atmosphere__ticks hero-atmosphere__ticks--right" />
+      <span className="hero-atmosphere__sparks" />
+    </div>
+  );
+}
+
 function HeroSection() {
   return (
     <section className="relative flex h-screen flex-col overflow-x-clip bg-[#0C0C0C]">
+      <HeroAtmosphere />
       <Navbar />
       <div className="relative z-20 mt-6 w-full overflow-hidden sm:mt-6 md:-mt-5">
         <FadeIn as="h1" delay={0.15} y={40} className="hero-heading w-full whitespace-nowrap text-[14vw] font-black uppercase leading-none tracking-tight sm:text-[15vw] md:text-[16vw] lg:text-[17.5vw]">
