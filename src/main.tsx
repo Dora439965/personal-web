@@ -25,6 +25,8 @@ import {
 } from 'framer-motion';
 import './styles.css';
 
+const heroPortraitGif = new URL('./liam.GIF', import.meta.url).href;
+
 const marqueeImages = [
   'https://motionsites.ai/assets/hero-space-voyage-preview-eECLH3Yc.gif',
   'https://motionsites.ai/assets/hero-codenest-preview-Cgppc2qV.gif',
@@ -240,7 +242,7 @@ const moods = [
 
 function HeroPortrait() {
   return (
-    <div className="absolute left-1/2 top-1/2 z-10 w-[280px] -translate-x-1/2 -translate-y-1/2 sm:w-[360px] md:w-[440px] lg:w-[520px]">
+    <div className="absolute left-1/2 top-1/2 z-10 w-[360px] max-w-[92vw] -translate-x-1/2 -translate-y-1/2 sm:w-[500px] md:w-[640px] lg:w-[760px]">
       <FadeIn delay={0.6} y={30} className="relative w-full">
         <Magnet padding={170} strength={18} maxOffset={34} className="relative">
           <motion.div className="relative w-full select-none">
@@ -279,9 +281,9 @@ function HeroPortrait() {
               }}
             />
             <motion.img
-              src="https://shrug-person-78902957.figma.site/_components/v2/d24c01ad3a56fc65e942a1f501eb73db42d7cf9a/Rectangle_40443.81459862.png"
+              src={heroPortraitGif}
               alt="Liu He portrait"
-              className="relative z-10 w-full object-contain drop-shadow-[0_24px_60px_rgba(0,0,0,0.55)]"
+              className="hero-portrait-gif relative z-10 w-full object-contain drop-shadow-[0_24px_60px_rgba(0,0,0,0.55)]"
               draggable={false}
             />
 
