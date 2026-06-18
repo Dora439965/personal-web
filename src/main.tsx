@@ -284,8 +284,7 @@ function HeroPortrait() {
               className="relative z-10 w-full object-contain drop-shadow-[0_24px_60px_rgba(0,0,0,0.55)]"
               draggable={false}
             />
-            <BlinkingEyelid className="left-[33.8%] top-[51.8%] h-[6.8%] w-[13.5%] rotate-[-3deg]" />
-            <BlinkingEyelid className="left-[52.2%] top-[51.1%] h-[6.7%] w-[13.2%] rotate-[2deg]" />
+
           </motion.div>
         </Magnet>
       </FadeIn>
@@ -669,6 +668,13 @@ function UniversityCurveSection() {
     updatePosition(event.clientX, true);
   };
 
+  const moveToMilestone = (index: number) => {
+    setHasInteracted(true);
+    setIsDragging(false);
+    setActiveIndex(index);
+    setPosition(universityMilestones[index].x);
+  };
+
   const linePoints = universityMilestones
     .map((milestone) => `${milestone.x},${milestone.y}`)
     .join(' ');
@@ -717,70 +723,70 @@ function UniversityCurveSection() {
                 <stop offset="100%" stopColor="#B600A8" />
               </linearGradient>
               <filter id="curveGlow" x="-20%" y="-20%" width="140%" height="140%">
-                <feGaussianBlur stdDeviation="1.8" result="blur" />
+                <feGaussianBlur stdDeviation="1.2" result="blur" />
                 <feMerge>
                   <feMergeNode in="blur" />
                   <feMergeNode in="SourceGraphic" />
                 </feMerge>
               </filter>
-              <pattern
-                id="chartGrid"
-                width="10"
-                height="10"
-                patternUnits="userSpaceOnUse"
-              >
-                <path
-                  d="M 10 0 L 0 0 0 10"
-                  fill="none"
-                  stroke="rgba(215,226,234,0.08)"
-                  strokeWidth="0.35"
-                />
-              </pattern>
-              <marker
-                id="axisArrow"
-                markerWidth="5"
-                markerHeight="5"
-                refX="4.5"
-                refY="2.5"
-                orient="auto"
-              >
-                <path d="M0,0 L5,2.5 L0,5 Z" fill="rgba(215,226,234,0.42)" />
-              </marker>
             </defs>
-            <rect x="4" y="12" width="92" height="74" fill="url(#chartGrid)" />
+            {/* Horizontal guide lines */}
+            {[30, 46, 62, 76].map((y) => (
+              <line
+                key={y}
+                x1="4"
+                y1={y}
+                x2="96"
+                y2={y}
+                stroke="rgba(215,226,234,0.08)"
+                strokeWidth="0.4"
+                strokeDasharray="0.8 3"
+                vectorEffect="non-scaling-stroke"
+              />
+            ))}
+            {/* X axis */}
             <line
               x1="4"
               y1="86"
               x2="96"
               y2="86"
-              stroke="rgba(215,226,234,0.38)"
-              strokeWidth="0.55"
-              markerEnd="url(#axisArrow)"
+              stroke="rgba(215,226,234,0.6)"
+              strokeWidth="1.4"
+              vectorEffect="non-scaling-stroke"
+              strokeLinecap="round"
             />
+            {/* X axis arrow */}
+            <polygon points="97.5,86 94,84.2 94,87.8" fill="rgba(215,226,234,0.6)" />
+            {/* Y axis */}
             <line
               x1="4"
               y1="86"
               x2="4"
               y2="12"
-              stroke="rgba(215,226,234,0.38)"
-              strokeWidth="0.55"
-              markerEnd="url(#axisArrow)"
+              stroke="rgba(215,226,234,0.6)"
+              strokeWidth="1.4"
+              vectorEffect="non-scaling-stroke"
+              strokeLinecap="round"
             />
+            {/* Y axis arrow */}
+            <polygon points="4,10.5 2.2,14 5.8,14" fill="rgba(215,226,234,0.6)" />
+            {/* Glow behind curve */}
             <polyline
               points={linePoints}
               fill="none"
-              stroke="rgba(182,0,168,0.24)"
-              strokeWidth="7"
+              stroke="rgba(182,0,168,0.2)"
+              strokeWidth="8"
               strokeLinecap="round"
               strokeLinejoin="round"
               vectorEffect="non-scaling-stroke"
               filter="url(#curveGlow)"
             />
+            {/* Main gradient curve */}
             <polyline
               points={linePoints}
               fill="none"
               stroke="url(#curveGradient)"
-              strokeWidth="3"
+              strokeWidth="2.5"
               strokeLinecap="round"
               strokeLinejoin="round"
               vectorEffect="non-scaling-stroke"
@@ -794,11 +800,15 @@ function UniversityCurveSection() {
               return (
                 <div
                   key={milestone.year}
-                  className="absolute"
+                  className="absolute flex cursor-pointer items-center justify-center p-3"
                   style={{
                     left: `${milestone.x}%`,
                     top: `${milestone.y}%`,
                     transform: 'translate(-50%, -50%)',
+                  }}
+                  onPointerDown={(event) => {
+                    event.stopPropagation();
+                    moveToMilestone(index);
                   }}
                 >
                   <motion.div
@@ -830,7 +840,7 @@ function UniversityCurveSection() {
             {universityMilestones.map((milestone) => (
               <span
                 key={`axis-${milestone.year}`}
-                className="absolute top-[88%] -translate-x-1/2 text-[0.65rem] font-medium tracking-widest text-[#D7E2EA]/48 sm:text-xs"
+                className="absolute top-[88%] -translate-x-1/2 text-[0.65rem] font-medium tracking-widest text-white sm:text-xs"
                 style={{ left: `${milestone.x}%` }}
               >
                 {milestone.year}
@@ -843,12 +853,12 @@ function UniversityCurveSection() {
                 left: `${position}%`,
                 top: `${avatarY}%`,
               }}
-              transition={{ type: 'spring', stiffness: 260, damping: 28 }}
+              transition={isDragging ? { type: 'tween', duration: 0.02, ease: 'linear' } : { type: 'tween', duration: 1.2, ease: [0.25, 0.1, 0.25, 1] }}
               style={{ transform: 'translate(-50%, -50%)' }}
             >
               <motion.div
                 animate={{ scale: isDragging ? 1.08 : 1 }}
-                transition={{ type: 'spring', stiffness: 260, damping: 22 }}
+                transition={{ type: 'spring', stiffness: 400, damping: 20 }}
                 className="relative"
               >
                 <div className="pointer-events-none absolute inset-[18%] -z-10 rounded-full bg-[#B600A8]/35 blur-2xl" />
@@ -862,49 +872,51 @@ function UniversityCurveSection() {
             </motion.div>
           </div>
 
-          <div className="pointer-events-none absolute left-6 top-6 text-xs font-light uppercase tracking-[0.28em] text-[#D7E2EA]/50 sm:left-8 sm:top-8">
+          <div className="pointer-events-none absolute left-6 top-6 flex items-center gap-1.5 text-[0.65rem] font-medium uppercase tracking-[0.3em] text-[#D7E2EA]/60 sm:left-8 sm:top-8 sm:text-xs">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" className="opacity-70"><path d="M7 12V2M7 2L4 5M7 2l3 3" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/></svg>
             Achievement
           </div>
-          <div className="pointer-events-none absolute bottom-6 right-6 text-xs font-light uppercase tracking-[0.28em] text-[#D7E2EA]/50 sm:bottom-8 sm:right-8">
+          <div className="pointer-events-none absolute bottom-6 right-6 flex items-center gap-1.5 text-[0.65rem] font-medium uppercase tracking-[0.3em] text-[#D7E2EA]/60 sm:bottom-8 sm:right-8 sm:text-xs">
             Time
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" className="opacity-70"><path d="M2 7h10M12 7L9 4M12 7l-3 3" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/></svg>
           </div>
 
-          <motion.div
-            className="absolute bottom-8 left-1/2 z-30 w-[min(88%,620px)] -translate-x-1/2 rounded-[28px] border border-[#D7E2EA]/20 bg-[#0C0C0C]/82 p-5 text-center text-[#D7E2EA] shadow-[0_20px_80px_rgba(0,0,0,0.45)] backdrop-blur-xl sm:p-6"
-            animate={{
-              opacity: activeMilestone || !hasInteracted ? 1 : 0,
-              y: activeMilestone || !hasInteracted ? 0 : 14,
-              pointerEvents: activeMilestone ? 'auto' : 'none',
-            }}
-          >
-            {activeMilestone && (
-              <>
-                <p className="text-sm font-medium uppercase tracking-[0.35em] text-[#BBCCD7]/70">
-                  {activeMilestone.year}
-                </p>
-                <h3 className="mt-2 text-[clamp(1.4rem,3vw,2.4rem)] font-black uppercase leading-none tracking-tight text-white">
-                  {activeMilestone.title}
-                </h3>
-                <p className="mx-auto mt-4 max-w-xl text-sm font-light leading-relaxed sm:text-base">
-                  {activeMilestone.description}
-                </p>
-              </>
-            )}
-            {!hasInteracted && (
-              <>
-                <p className="text-sm font-medium uppercase tracking-[0.35em] text-[#BBCCD7]/70">
-                  Drag to reveal
-                </p>
-                <h3 className="mt-2 text-[clamp(1.25rem,3vw,2.2rem)] font-black uppercase leading-none tracking-tight text-white">
-                  拖动小人查看大学阶段
-                </h3>
-                <p className="mx-auto mt-4 max-w-xl text-sm font-light leading-relaxed text-[#D7E2EA]/72 sm:text-base">
-                  将小人拖到折线图上的年份节点，才会显示该阶段的经历与成就。
-                </p>
-              </>
-            )}
-          </motion.div>
         </div>
+
+        <motion.div
+          className="mx-auto mt-8 w-[min(88%,620px)] rounded-[28px] border border-[#D7E2EA]/20 bg-[#0C0C0C]/82 p-5 text-center text-[#D7E2EA] shadow-[0_20px_80px_rgba(0,0,0,0.45)] backdrop-blur-xl sm:p-6"
+          animate={{
+            opacity: activeMilestone || !hasInteracted ? 1 : 0,
+            y: activeMilestone || !hasInteracted ? 0 : 14,
+          }}
+        >
+          {activeMilestone && (
+            <>
+              <p className="text-sm font-medium uppercase tracking-[0.35em] text-[#BBCCD7]/70">
+                {activeMilestone.year}
+              </p>
+              <h3 className="mt-2 text-[clamp(1.4rem,3vw,2.4rem)] font-black uppercase leading-none tracking-tight text-white">
+                {activeMilestone.title}
+              </h3>
+              <p className="mx-auto mt-4 max-w-xl text-sm font-light leading-relaxed sm:text-base">
+                {activeMilestone.description}
+              </p>
+            </>
+          )}
+          {!hasInteracted && (
+            <>
+              <p className="text-sm font-medium uppercase tracking-[0.35em] text-[#BBCCD7]/70">
+                Drag to reveal
+              </p>
+              <h3 className="mt-2 text-[clamp(1.25rem,3vw,2.2rem)] font-black uppercase leading-none tracking-tight text-white">
+                拖动小人查看大学阶段
+              </h3>
+              <p className="mx-auto mt-4 max-w-xl text-sm font-light leading-relaxed text-[#D7E2EA]/72 sm:text-base">
+                将小人拖到折线图上的年份节点，才会显示该阶段的经历与成就。
+              </p>
+            </>
+          )}
+        </motion.div>
       </div>
     </section>
   );
