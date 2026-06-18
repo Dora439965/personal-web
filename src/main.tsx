@@ -25,7 +25,7 @@ import {
 } from 'framer-motion';
 import './styles.css';
 
-const heroPortraitGif = new URL('./liam.GIF', import.meta.url).href;
+const heroPortraitGif = new URL('./liam2.GIF', import.meta.url).href;
 
 const marqueeImages = [
   'https://motionsites.ai/assets/hero-space-voyage-preview-eECLH3Yc.gif',
