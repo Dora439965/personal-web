@@ -647,6 +647,7 @@ function UniversityCurveSection() {
   );
 
   const handlePointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
+    event.stopPropagation();
     event.currentTarget.setPointerCapture(event.pointerId);
     setIsDragging(true);
     setHasInteracted(true);
@@ -697,14 +698,11 @@ function UniversityCurveSection() {
           Drag Liu He across the timeline
         </FadeIn>
 
-        <div
-          ref={chartRef}
-          className="relative mt-14 h-[520px] cursor-grab select-none rounded-[36px] border border-[#D7E2EA]/16 bg-[#111]/70 p-4 shadow-[0_30px_100px_rgba(0,0,0,0.45)] active:cursor-grabbing sm:p-8 md:mt-18"
-          onPointerDown={handlePointerDown}
-          onPointerMove={handlePointerMove}
-          onPointerUp={handlePointerUp}
-          onPointerCancel={handlePointerUp}
-        >
+        <div className="mt-14 grid gap-8 lg:grid-cols-[minmax(0,1.12fr)_minmax(360px,0.88fr)] lg:items-center">
+          <div
+            ref={chartRef}
+            className="relative h-[520px] select-none rounded-[36px] border border-[#D7E2EA]/16 bg-[#111]/70 p-4 shadow-[0_30px_100px_rgba(0,0,0,0.45)] sm:p-8 lg:h-[560px]"
+          >
           <svg
             viewBox="0 0 100 100"
             preserveAspectRatio="none"
@@ -843,13 +841,17 @@ function UniversityCurveSection() {
             ))}
 
             <motion.div
-              className="absolute z-20 w-[82px] touch-none sm:w-[104px] md:w-[124px]"
+              className="absolute z-20 w-[82px] cursor-grab touch-none sm:w-[104px] md:w-[124px]"
               animate={{
                 left: `${position}%`,
                 top: `${avatarY}%`,
               }}
               transition={isDragging ? { type: 'tween', duration: 0.02, ease: 'linear' } : { type: 'tween', duration: 1.2, ease: [0.25, 0.1, 0.25, 1] }}
               style={{ transform: 'translate(-50%, -50%)' }}
+              onPointerDown={handlePointerDown}
+              onPointerMove={handlePointerMove}
+              onPointerUp={handlePointerUp}
+              onPointerCancel={handlePointerUp}
             >
               <motion.div
                 animate={{ scale: isDragging ? 1.08 : 1 }}
@@ -876,78 +878,79 @@ function UniversityCurveSection() {
             <svg width="14" height="14" viewBox="0 0 14 14" fill="none" className="opacity-70"><path d="M2 7h10M12 7L9 4M12 7l-3 3" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/></svg>
           </div>
 
-        </div>
-
-        <motion.div
-          className="relative mx-auto mt-8 w-[min(90%,640px)] overflow-hidden rounded-[28px] p-[1.5px] shadow-[0_24px_90px_rgba(0,0,0,0.5)]"
-          style={{
-            background:
-              'linear-gradient(135deg, rgba(182,0,168,0.55) 0%, rgba(118,33,176,0.28) 38%, rgba(187,204,215,0.18) 70%, rgba(190,76,0,0.4) 100%)',
-          }}
-          animate={{
-            opacity: activeMilestone || !hasInteracted ? 1 : 0,
-            y: activeMilestone || !hasInteracted ? 0 : 14,
-          }}
-          transition={{ duration: 0.4, ease: [0.25, 0.1, 0.25, 1] }}
-        >
-          <div className="relative overflow-hidden rounded-[27px] bg-[#0C0C0C]/90 px-7 py-8 text-center text-[#D7E2EA] backdrop-blur-xl sm:px-10 sm:py-9">
-            <div className="pointer-events-none absolute -top-20 left-1/2 h-40 w-40 -translate-x-1/2 rounded-full bg-[#B600A8]/25 blur-[60px]" />
-            {activeMilestone && (
-              <div key={activeMilestone.year} className="relative">
-                <motion.span
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.45 }}
-                  className="inline-flex items-center rounded-full px-4 py-1 text-xs font-semibold tracking-[0.4em] text-white"
-                  style={{
-                    background:
-                      'linear-gradient(123deg, #18011F 0%, #B600A8 45%, #7621B0 100%)',
-                    boxShadow: '0 6px 18px rgba(181,1,167,0.35)',
-                  }}
-                >
-                  {activeMilestone.year}
-                </motion.span>
-                <motion.h3
-                  initial={{ opacity: 0, y: 12 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: 0.05 }}
-                  className="mt-5 text-[clamp(1.5rem,3.4vw,2.6rem)] font-black uppercase leading-none tracking-tight text-white"
-                >
-                  {activeMilestone.title}
-                </motion.h3>
-                <motion.div
-                  initial={{ scaleX: 0 }}
-                  animate={{ scaleX: 1 }}
-                  transition={{ duration: 0.5, delay: 0.12 }}
-                  className="mx-auto mt-5 h-px w-16 origin-center bg-gradient-to-r from-transparent via-[#BBCCD7]/70 to-transparent"
-                />
-                <motion.p
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: 0.16 }}
-                  className="mx-auto mt-5 max-w-xl text-sm font-light leading-relaxed text-[#D7E2EA]/90 sm:text-base"
-                >
-                  {activeMilestone.description}
-                </motion.p>
-              </div>
-            )}
-            {!hasInteracted && (
-              <div className="relative">
-                <span className="inline-flex items-center gap-2 rounded-full border border-[#D7E2EA]/25 px-4 py-1 text-xs font-medium uppercase tracking-[0.35em] text-[#BBCCD7]/80">
-                  <Sparkles size={13} strokeWidth={2.2} />
-                  Drag to reveal
-                </span>
-                <h3 className="mt-5 text-[clamp(1.3rem,3vw,2.2rem)] font-black uppercase leading-none tracking-tight text-white">
-                  拖动小人查看大学阶段
-                </h3>
-                <div className="mx-auto mt-5 h-px w-16 bg-gradient-to-r from-transparent via-[#BBCCD7]/70 to-transparent" />
-                <p className="mx-auto mt-5 max-w-xl text-sm font-light leading-relaxed text-[#D7E2EA]/72 sm:text-base">
-                  将小人拖到折线图上的年份节点，或直接点击节点，查看该阶段的经历与成就。
-                </p>
-              </div>
-            )}
           </div>
-        </motion.div>
+
+          <motion.div
+            className="relative mx-auto w-[min(100%,640px)] overflow-hidden rounded-[28px] p-[1.5px] shadow-[0_24px_90px_rgba(0,0,0,0.5)] lg:mx-0"
+            style={{
+              background:
+                'linear-gradient(135deg, rgba(182,0,168,0.55) 0%, rgba(118,33,176,0.28) 38%, rgba(187,204,215,0.18) 70%, rgba(190,76,0,0.4) 100%)',
+            }}
+            animate={{
+              opacity: activeMilestone || !hasInteracted ? 1 : 0,
+              y: activeMilestone || !hasInteracted ? 0 : 14,
+            }}
+            transition={{ duration: 0.4, ease: [0.25, 0.1, 0.25, 1] }}
+          >
+            <div className="relative overflow-hidden rounded-[27px] bg-[#0C0C0C]/90 px-7 py-8 text-center text-[#D7E2EA] backdrop-blur-xl sm:px-10 sm:py-9 lg:px-9 lg:py-10">
+              <div className="pointer-events-none absolute -top-20 left-1/2 h-40 w-40 -translate-x-1/2 rounded-full bg-[#B600A8]/25 blur-[60px]" />
+              {activeMilestone && (
+                <div key={activeMilestone.year} className="relative">
+                  <motion.span
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.45 }}
+                    className="inline-flex items-center rounded-full px-4 py-1 text-xs font-semibold tracking-[0.4em] text-white"
+                    style={{
+                      background:
+                        'linear-gradient(123deg, #18011F 0%, #B600A8 45%, #7621B0 100%)',
+                      boxShadow: '0 6px 18px rgba(181,1,167,0.35)',
+                    }}
+                  >
+                    {activeMilestone.year}
+                  </motion.span>
+                  <motion.h3
+                    initial={{ opacity: 0, y: 12 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: 0.05 }}
+                    className="mt-5 text-[clamp(1.5rem,3.4vw,2.6rem)] font-black uppercase leading-none tracking-tight text-white"
+                  >
+                    {activeMilestone.title}
+                  </motion.h3>
+                  <motion.div
+                    initial={{ scaleX: 0 }}
+                    animate={{ scaleX: 1 }}
+                    transition={{ duration: 0.5, delay: 0.12 }}
+                    className="mx-auto mt-5 h-px w-16 origin-center bg-gradient-to-r from-transparent via-[#BBCCD7]/70 to-transparent"
+                  />
+                  <motion.p
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: 0.16 }}
+                    className="mx-auto mt-5 max-w-xl text-sm font-light leading-relaxed text-[#D7E2EA]/90 sm:text-base"
+                  >
+                    {activeMilestone.description}
+                  </motion.p>
+                </div>
+              )}
+              {!hasInteracted && (
+                <div className="relative">
+                  <span className="inline-flex items-center gap-2 rounded-full border border-[#D7E2EA]/25 px-4 py-1 text-xs font-medium uppercase tracking-[0.35em] text-[#BBCCD7]/80">
+                    <Sparkles size={13} strokeWidth={2.2} />
+                    Drag to reveal
+                  </span>
+                  <h3 className="mt-5 text-[clamp(1.3rem,3vw,2.2rem)] font-black uppercase leading-none tracking-tight text-white">
+                    拖动小人查看大学阶段
+                  </h3>
+                  <div className="mx-auto mt-5 h-px w-16 bg-gradient-to-r from-transparent via-[#BBCCD7]/70 to-transparent" />
+                  <p className="mx-auto mt-5 max-w-xl text-sm font-light leading-relaxed text-[#D7E2EA]/72 sm:text-base">
+                    将小人拖到折线图上的年份节点，或直接点击节点，查看该阶段的经历与成就。
+                  </p>
+                </div>
+              )}
+            </div>
+          </motion.div>
+        </div>
       </div>
     </section>
   );
