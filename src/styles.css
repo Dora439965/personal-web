@@ -314,6 +314,9 @@ img {
 .hero-portrait-gif {
   background: transparent;
   mix-blend-mode: screen;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
   -webkit-mask-image: radial-gradient(
     ellipse 48% 66% at 50% 44%,
     #000 0%,

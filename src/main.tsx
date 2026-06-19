@@ -25,7 +25,7 @@ import {
 } from 'framer-motion';
 import './styles.css';
 
-const heroPortraitVideo = new URL('./liam.mp4', import.meta.url).href;
+const heroPortraitVideo = new URL('./liam3.mp4', import.meta.url).href;
 
 const marqueeImages = [
   'https://motionsites.ai/assets/hero-space-voyage-preview-eECLH3Yc.gif',
@@ -252,7 +252,11 @@ function HeroPortrait() {
               loop
               muted
               playsInline
+              disablePictureInPicture
+              controlsList="nodownload noplaybackrate noremoteplayback"
+              tabIndex={-1}
               aria-label="Liu He portrait animation"
+              onContextMenu={(event) => event.preventDefault()}
               className="hero-portrait-gif relative z-10 w-full object-contain drop-shadow-[0_24px_60px_rgba(0,0,0,0.55)]"
             />
 
@@ -389,7 +393,7 @@ function MarqueeSection() {
   const rowTwo = marqueeImages.slice(11);
 
   return (
-    <section className="overflow-hidden bg-[#0C0C0C] pt-24 pb-10 sm:pt-28 md:pt-32">
+    <section className="overflow-hidden bg-[#0C0C0C] pt-8 pb-10 sm:pt-10 md:pt-12">
       <div className="flex flex-col gap-3">
         <MarqueeRow images={rowOne} direction="left" duration={52} />
         <MarqueeRow images={rowTwo} direction="right" duration={48} />
