@@ -23,9 +23,12 @@ import {
   useMotionValue,
   useSpring,
 } from 'framer-motion';
+import CardSwap, { Card } from './CardSwap';
 import './styles.css';
 
 const heroPortraitVideo = new URL('./liam3.mp4', import.meta.url).href;
+const universityBikeGif = new URL('./hero2-once.GIF', import.meta.url).href;
+const universityBikeStill = new URL('./hero2-still.png', import.meta.url).href;
 
 const marqueeImages = [
   'https://motionsites.ai/assets/hero-space-voyage-preview-eECLH3Yc.gif',
@@ -142,7 +145,10 @@ function FadeIn<T extends React.ElementType = 'div'>({
   children,
   ...props
 }: FadeInProps<T>) {
-  const Component = motion.create((as || 'div') as React.ElementType);
+  const Component = React.useMemo(
+    () => motion.create((as || 'div') as React.ElementType),
+    [as],
+  );
 
   return (
     <Component
@@ -605,71 +611,53 @@ const universityMilestones = [
 ];
 
 function UniversityCurveSection() {
-  const chartRef = React.useRef<HTMLDivElement>(null);
-  const [isDragging, setIsDragging] = React.useState(false);
-  const [hasInteracted, setHasInteracted] = React.useState(false);
+  const segmentTimerRef = React.useRef<number | null>(null);
   const [position, setPosition] = React.useState(universityMilestones[0].x);
-  const [activeIndex, setActiveIndex] = React.useState<number | null>(null);
-  const activeMilestone =
-    hasInteracted && activeIndex !== null
-      ? universityMilestones[activeIndex]
-      : null;
+  const [activeIndex, setActiveIndex] = React.useState(0);
+  const [isRiding, setIsRiding] = React.useState(false);
+  const [bikeRunId, setBikeRunId] = React.useState(0);
+  const activeMilestone = universityMilestones[activeIndex];
 
-  const getClosestMilestone = React.useCallback((percent: number) => {
-    return universityMilestones.reduce(
-      (closest, milestone, index) => {
-        const distance = Math.abs(milestone.x - percent);
-        return distance < closest.distance ? { index, distance } : closest;
-      },
-      { index: 0, distance: Number.POSITIVE_INFINITY },
-    );
+  React.useEffect(() => {
+    return () => {
+      if (segmentTimerRef.current !== null) {
+        window.clearTimeout(segmentTimerRef.current);
+      }
+    };
   }, []);
 
-  const updatePosition = React.useCallback(
-    (clientX: number, shouldSnap = false) => {
-      if (!chartRef.current) return;
-      const rect = chartRef.current.getBoundingClientRect();
-      const rawPercent = ((clientX - rect.left) / rect.width) * 100;
-      const clampedPercent = Math.max(0, Math.min(100, rawPercent));
-      const closest = getClosestMilestone(clampedPercent);
+  const moveToMilestone = React.useCallback(
+    (targetIndex: number) => {
+      if (isRiding || targetIndex === activeIndex) return;
 
-      if (shouldSnap) {
-        const milestone = universityMilestones[closest.index];
-        setPosition(milestone.x);
-        setActiveIndex(closest.index);
-        return;
-      }
+      const direction = targetIndex > activeIndex ? 1 : -1;
+      let currentIndex = activeIndex;
 
-      setPosition(clampedPercent);
-      setActiveIndex(closest.distance <= 5.5 ? closest.index : null);
+      setIsRiding(true);
+
+      const rideNextSegment = () => {
+        const nextIndex = currentIndex + direction;
+        setBikeRunId((runId) => runId + 1);
+        setPosition(universityMilestones[nextIndex].x);
+
+        segmentTimerRef.current = window.setTimeout(() => {
+          currentIndex = nextIndex;
+          setActiveIndex(currentIndex);
+
+          if (currentIndex === targetIndex) {
+            setIsRiding(false);
+            segmentTimerRef.current = null;
+            return;
+          }
+
+          rideNextSegment();
+        }, 1500);
+      };
+
+      rideNextSegment();
     },
-    [getClosestMilestone],
+    [activeIndex, isRiding],
   );
-
-  const handlePointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
-    event.stopPropagation();
-    event.currentTarget.setPointerCapture(event.pointerId);
-    setIsDragging(true);
-    setHasInteracted(true);
-    updatePosition(event.clientX);
-  };
-
-  const handlePointerMove = (event: React.PointerEvent<HTMLDivElement>) => {
-    if (!isDragging) return;
-    updatePosition(event.clientX);
-  };
-
-  const handlePointerUp = (event: React.PointerEvent<HTMLDivElement>) => {
-    setIsDragging(false);
-    updatePosition(event.clientX, true);
-  };
-
-  const moveToMilestone = (index: number) => {
-    setHasInteracted(true);
-    setIsDragging(false);
-    setActiveIndex(index);
-    setPosition(universityMilestones[index].x);
-  };
 
   const linePoints = universityMilestones
     .map((milestone) => `${milestone.x},${milestone.y}`)
@@ -695,12 +683,11 @@ function UniversityCurveSection() {
           y={30}
           className="mt-8 text-center text-sm font-light uppercase tracking-[0.35em] text-[#D7E2EA]/70 sm:text-base"
         >
-          Drag Liu He across the timeline
+          Liu He bikes upward through each milestone
         </FadeIn>
 
         <div className="mt-14 grid gap-8 lg:grid-cols-[minmax(0,1.12fr)_minmax(360px,0.88fr)] lg:items-center">
           <div
-            ref={chartRef}
             className="relative h-[520px] select-none rounded-[36px] border border-[#D7E2EA]/16 bg-[#111]/70 p-4 shadow-[0_30px_100px_rgba(0,0,0,0.45)] sm:p-8 lg:h-[560px]"
           >
           <svg
@@ -789,11 +776,13 @@ function UniversityCurveSection() {
 
           <div className="absolute inset-4 sm:inset-8">
             {universityMilestones.map((milestone, index) => {
-              const isActive = hasInteracted && activeIndex === index;
+              const isActive = activeIndex === index;
               return (
                 <div
                   key={milestone.year}
-                  className="absolute flex cursor-pointer items-center justify-center p-3"
+                  className={`absolute flex items-center justify-center p-3 ${
+                    isRiding ? 'pointer-events-none' : 'cursor-pointer'
+                  }`}
                   style={{
                     left: `${milestone.x}%`,
                     top: `${milestone.y}%`,
@@ -805,24 +794,56 @@ function UniversityCurveSection() {
                   }}
                 >
                   <motion.div
-                    className="relative flex h-5 w-5 items-center justify-center rounded-full border border-[#D7E2EA]/55 bg-[#0C0C0C]/85 shadow-[0_0_28px_rgba(187,204,215,0.28)] backdrop-blur"
+                    className="relative flex h-6 w-6 items-center justify-center rounded-full border border-[#D7E2EA]/70 bg-[#0C0C0C]/90 shadow-[0_0_36px_rgba(187,204,215,0.38)] backdrop-blur"
                     animate={{
-                      scale: isActive ? 1.22 : 1,
+                      scale: isActive ? 1.2 : [1, 1.04, 1],
                       borderColor: isActive
                         ? 'rgba(187,204,215,0.95)'
-                        : 'rgba(215,226,234,0.45)',
+                        : 'rgba(215,226,234,0.58)',
                       boxShadow: isActive
-                        ? '0 0 42px rgba(182,0,168,0.8), 0 0 18px rgba(187,204,215,0.55) inset'
-                        : '0 0 28px rgba(187,204,215,0.28)',
+                        ? '0 0 44px rgba(182,0,168,0.78), 0 0 18px rgba(187,204,215,0.5) inset'
+                        : '0 0 30px rgba(187,204,215,0.32), 0 0 12px rgba(182,0,168,0.24)',
+                    }}
+                    transition={{
+                      duration: 1.6,
+                      repeat: Infinity,
+                      ease: 'easeInOut',
+                      delay: index * 0.12,
                     }}
                   >
                     <motion.span
-                      className="h-2 w-2 rounded-full bg-[#D7E2EA]"
+                      className="pointer-events-none absolute inset-[-14px] rounded-full border border-[#B600A8]/55 shadow-[0_0_20px_rgba(182,0,168,0.34)]"
+                      animate={{
+                        opacity: isActive ? [0.58, 0.12, 0.58] : [0.38, 0.06, 0.38],
+                        scale: isActive ? [0.78, 1.65, 0.78] : [0.84, 1.46, 0.84],
+                      }}
+                      transition={{
+                        duration: isActive ? 1.35 : 1.85,
+                        repeat: Infinity,
+                        ease: 'easeInOut',
+                        delay: index * 0.16,
+                      }}
+                    />
+                    <motion.span
+                      className="pointer-events-none absolute inset-[-7px] rounded-full bg-[#BBCCD7]/12 shadow-[0_0_16px_rgba(187,204,215,0.28)]"
+                      animate={{
+                        opacity: isActive ? [0.24, 0.48, 0.24] : [0.14, 0.3, 0.14],
+                        scale: [0.9, 1.22, 0.9],
+                      }}
+                      transition={{
+                        duration: 1.2,
+                        repeat: Infinity,
+                        ease: 'easeInOut',
+                        delay: index * 0.12,
+                      }}
+                    />
+                    <motion.span
+                      className="relative h-2.5 w-2.5 rounded-full bg-[#D7E2EA]"
                       animate={{
                         backgroundColor: isActive ? '#B600A8' : '#D7E2EA',
                         boxShadow: isActive
-                          ? '0 0 18px rgba(182,0,168,0.9)'
-                          : '0 0 12px rgba(215,226,234,0.35)',
+                          ? '0 0 22px rgba(182,0,168,0.86), 0 0 8px rgba(255,255,255,0.45)'
+                          : '0 0 14px rgba(215,226,234,0.48)',
                       }}
                     />
                   </motion.div>
@@ -841,31 +862,26 @@ function UniversityCurveSection() {
             ))}
 
             <motion.div
-              className="absolute z-20 w-[82px] cursor-grab touch-none sm:w-[104px] md:w-[124px]"
+              className="pointer-events-none absolute z-20 w-[86px] touch-none sm:w-[108px] md:w-[128px]"
               animate={{
                 left: `${position}%`,
                 top: `${avatarY}%`,
               }}
-              transition={isDragging ? { type: 'tween', duration: 0.02, ease: 'linear' } : { type: 'tween', duration: 1.2, ease: [0.25, 0.1, 0.25, 1] }}
+              transition={{ duration: isRiding ? 1.5 : 0.25, ease: 'linear' }}
               style={{ transform: 'translate(-50%, -50%)' }}
-              onPointerDown={handlePointerDown}
-              onPointerMove={handlePointerMove}
-              onPointerUp={handlePointerUp}
-              onPointerCancel={handlePointerUp}
             >
-              <motion.div
-                animate={{ scale: isDragging ? 1.08 : 1 }}
-                transition={{ type: 'spring', stiffness: 400, damping: 20 }}
-                className="relative"
-              >
-                <div className="pointer-events-none absolute inset-[18%] -z-10 rounded-full bg-[#B600A8]/35 blur-2xl" />
+              <div className="relative">
+                <div className="pointer-events-none absolute inset-[22%] -z-10 rounded-full bg-[#B600A8]/38 blur-2xl" />
                 <img
-                  src="https://shrug-person-78902957.figma.site/_components/v2/d24c01ad3a56fc65e942a1f501eb73db42d7cf9a/Rectangle_40443.81459862.png"
-                  alt="Draggable Liu He timeline avatar"
-                  className="w-full object-contain drop-shadow-[0_18px_34px_rgba(0,0,0,0.55)]"
+                  key={isRiding ? bikeRunId : 'still'}
+                  src={isRiding ? universityBikeGif : universityBikeStill}
+                  alt=""
+                  aria-label="Liu He biking along the university curve"
+                  className="university-bike-avatar w-full object-contain drop-shadow-[0_18px_34px_rgba(0,0,0,0.55)]"
                   draggable={false}
+                  onContextMenu={(event) => event.preventDefault()}
                 />
-              </motion.div>
+              </div>
             </motion.div>
           </div>
 
@@ -887,67 +903,50 @@ function UniversityCurveSection() {
                 'linear-gradient(135deg, rgba(182,0,168,0.55) 0%, rgba(118,33,176,0.28) 38%, rgba(187,204,215,0.18) 70%, rgba(190,76,0,0.4) 100%)',
             }}
             animate={{
-              opacity: activeMilestone || !hasInteracted ? 1 : 0,
-              y: activeMilestone || !hasInteracted ? 0 : 14,
+              opacity: 1,
+              y: 0,
             }}
             transition={{ duration: 0.4, ease: [0.25, 0.1, 0.25, 1] }}
           >
             <div className="relative overflow-hidden rounded-[27px] bg-[#0C0C0C]/90 px-7 py-8 text-center text-[#D7E2EA] backdrop-blur-xl sm:px-10 sm:py-9 lg:px-9 lg:py-10">
               <div className="pointer-events-none absolute -top-20 left-1/2 h-40 w-40 -translate-x-1/2 rounded-full bg-[#B600A8]/25 blur-[60px]" />
-              {activeMilestone && (
-                <div key={activeMilestone.year} className="relative">
-                  <motion.span
-                    initial={{ opacity: 0, y: 8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.45 }}
-                    className="inline-flex items-center rounded-full px-4 py-1 text-xs font-semibold tracking-[0.4em] text-white"
-                    style={{
-                      background:
-                        'linear-gradient(123deg, #18011F 0%, #B600A8 45%, #7621B0 100%)',
-                      boxShadow: '0 6px 18px rgba(181,1,167,0.35)',
-                    }}
-                  >
-                    {activeMilestone.year}
-                  </motion.span>
-                  <motion.h3
-                    initial={{ opacity: 0, y: 12 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: 0.05 }}
-                    className="mt-5 text-[clamp(1.5rem,3.4vw,2.6rem)] font-black uppercase leading-none tracking-tight text-white"
-                  >
-                    {activeMilestone.title}
-                  </motion.h3>
-                  <motion.div
-                    initial={{ scaleX: 0 }}
-                    animate={{ scaleX: 1 }}
-                    transition={{ duration: 0.5, delay: 0.12 }}
-                    className="mx-auto mt-5 h-px w-16 origin-center bg-gradient-to-r from-transparent via-[#BBCCD7]/70 to-transparent"
-                  />
-                  <motion.p
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: 0.16 }}
-                    className="mx-auto mt-5 max-w-xl text-sm font-light leading-relaxed text-[#D7E2EA]/90 sm:text-base"
-                  >
-                    {activeMilestone.description}
-                  </motion.p>
-                </div>
-              )}
-              {!hasInteracted && (
-                <div className="relative">
-                  <span className="inline-flex items-center gap-2 rounded-full border border-[#D7E2EA]/25 px-4 py-1 text-xs font-medium uppercase tracking-[0.35em] text-[#BBCCD7]/80">
-                    <Sparkles size={13} strokeWidth={2.2} />
-                    Drag to reveal
-                  </span>
-                  <h3 className="mt-5 text-[clamp(1.3rem,3vw,2.2rem)] font-black uppercase leading-none tracking-tight text-white">
-                    拖动小人查看大学阶段
-                  </h3>
-                  <div className="mx-auto mt-5 h-px w-16 bg-gradient-to-r from-transparent via-[#BBCCD7]/70 to-transparent" />
-                  <p className="mx-auto mt-5 max-w-xl text-sm font-light leading-relaxed text-[#D7E2EA]/72 sm:text-base">
-                    将小人拖到折线图上的年份节点，或直接点击节点，查看该阶段的经历与成就。
-                  </p>
-                </div>
-              )}
+              <div key={activeMilestone.year} className="relative">
+                <motion.span
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.45 }}
+                  className="inline-flex items-center rounded-full px-4 py-1 text-xs font-semibold tracking-[0.4em] text-white"
+                  style={{
+                    background:
+                      'linear-gradient(123deg, #18011F 0%, #B600A8 45%, #7621B0 100%)',
+                    boxShadow: '0 6px 18px rgba(181,1,167,0.35)',
+                  }}
+                >
+                  {activeMilestone.year}
+                </motion.span>
+                <motion.h3
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: 0.05 }}
+                  className="mt-5 text-[clamp(1.5rem,3.4vw,2.6rem)] font-black uppercase leading-none tracking-tight text-white"
+                >
+                  {activeMilestone.title}
+                </motion.h3>
+                <motion.div
+                  initial={{ scaleX: 0 }}
+                  animate={{ scaleX: 1 }}
+                  transition={{ duration: 0.5, delay: 0.12 }}
+                  className="mx-auto mt-5 h-px w-16 origin-center bg-gradient-to-r from-transparent via-[#BBCCD7]/70 to-transparent"
+                />
+                <motion.p
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: 0.16 }}
+                  className="mx-auto mt-5 max-w-xl text-sm font-light leading-relaxed text-[#D7E2EA]/90 sm:text-base"
+                >
+                  {activeMilestone.description}
+                </motion.p>
+              </div>
             </div>
           </motion.div>
         </div>
@@ -1392,11 +1391,74 @@ function ProjectTile({
   );
 }
 
+const SkillCardSwapDeck = React.memo(function SkillCardSwapDeck({
+  onActiveChange,
+}: {
+  onActiveChange: (index: number) => void;
+}) {
+  return (
+    <CardSwap
+      width="min(78vw, 390px)"
+      height={340}
+      cardDistance={58}
+      verticalDistance={66}
+      skewAmount={5}
+      easing="elastic"
+      onSwapStart={onActiveChange}
+    >
+      {professionalSkills.map((skill, index) => {
+        const Icon = skill.icon;
+
+        return (
+          <Card
+            key={skill.title}
+            customClass="skill-swap-card flex flex-col overflow-hidden p-6 text-left text-[#D7E2EA] shadow-[0_30px_90px_rgba(0,0,0,0.45)] transition-colors hover:border-[#D7E2EA]/42"
+          >
+            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_18%,rgba(215,226,234,0.16),transparent_28%),linear-gradient(145deg,rgba(255,255,255,0.08),transparent_42%),radial-gradient(circle_at_85%_86%,rgba(182,0,168,0.24),transparent_32%)]" />
+            <div className="pointer-events-none absolute -right-12 -top-12 h-36 w-36 rounded-full border border-[#D7E2EA]/10" />
+            <div className="relative z-10 flex items-start justify-between gap-5">
+              <span className="flex h-14 w-14 items-center justify-center rounded-2xl border border-[#D7E2EA]/28 bg-white/[0.05] text-[#D7E2EA]">
+                <Icon size={28} strokeWidth={1.7} />
+              </span>
+              <span className="rounded-full border border-[#D7E2EA]/14 px-3 py-1.5 text-[0.62rem] font-black uppercase tracking-[0.2em] text-[#BBCCD7]/68">
+                {String(index + 1).padStart(2, '0')} / {skill.label}
+              </span>
+            </div>
+
+            <div className="relative z-10 mt-8">
+              <h4 className="text-[clamp(1.5rem,4vw,2.6rem)] font-black leading-[0.95] tracking-tight">
+                {skill.title}
+              </h4>
+              <p className="mt-5 line-clamp-3 text-sm font-light leading-relaxed text-[#D7E2EA]/68">
+                {skill.summary}
+              </p>
+            </div>
+
+            <div className="relative z-10 mt-auto">
+              <div className="mb-3 flex items-center justify-between text-[0.62rem] font-black uppercase tracking-[0.18em] text-[#BBCCD7]/56">
+                <span>Mastery</span>
+                <span>{skill.level}%</span>
+              </div>
+              <div className="h-2 overflow-hidden rounded-full bg-white/[0.07]">
+                <div
+                  className="h-full rounded-full bg-[linear-gradient(90deg,#BBCCD7,#B600A8,#C9653A)]"
+                  style={{ width: `${skill.level}%` }}
+                />
+              </div>
+            </div>
+          </Card>
+        );
+      })}
+    </CardSwap>
+  );
+});
+
 function ProfessionalSkillsSection() {
   const [activeSkill, setActiveSkill] = React.useState(0);
   const active = professionalSkills[activeSkill];
-  const ActiveIcon = active.icon;
-  const orbitRadius = 34;
+  const handleActiveSkillChange = React.useCallback((index: number) => {
+    setActiveSkill(index);
+  }, []);
 
   return (
     <section
@@ -1426,64 +1488,34 @@ function ProfessionalSkillsSection() {
           <FadeIn
             delay={0.12}
             y={34}
-            className="relative min-h-[560px] overflow-hidden rounded-[36px] border border-[#D7E2EA]/14 bg-[#111]/76 p-5 shadow-[0_34px_110px_rgba(0,0,0,0.42)] sm:p-8"
+            className="relative min-h-[560px] overflow-hidden rounded-[36px] border border-[#D7E2EA]/14 bg-[#111]/76 p-5 shadow-[0_34px_110px_rgba(0,0,0,0.42)] sm:p-8 lg:min-h-[620px]"
           >
+            <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(120deg,rgba(215,226,234,0.06),transparent_35%),radial-gradient(circle_at_78%_20%,rgba(182,0,168,0.2),transparent_34%),radial-gradient(circle_at_20%_82%,rgba(187,204,215,0.11),transparent_30%)]" />
+            <div className="pointer-events-none absolute bottom-8 right-8 h-px w-28 bg-gradient-to-r from-transparent to-[#D7E2EA]/42" />
             <motion.div
-              className="pointer-events-none absolute left-1/2 top-1/2 h-[360px] w-[360px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-[#D7E2EA]/10"
+              className="pointer-events-none absolute -right-24 top-14 h-72 w-72 rounded-full border border-[#D7E2EA]/10"
               animate={{ rotate: 360 }}
-              transition={{ duration: 18, repeat: Infinity, ease: 'linear' }}
-            >
-              <div className="absolute left-1/2 top-0 h-24 w-px -translate-x-1/2 bg-gradient-to-b from-[#BBCCD7]/70 to-transparent" />
-            </motion.div>
-            <div className="pointer-events-none absolute left-1/2 top-1/2 h-[270px] w-[270px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-dashed border-[#D7E2EA]/12" />
-            <div className="pointer-events-none absolute left-1/2 top-1/2 h-[190px] w-[190px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-[#D7E2EA]/10 bg-[radial-gradient(circle,rgba(182,0,168,0.16),transparent_64%)]" />
+              transition={{ duration: 26, repeat: Infinity, ease: 'linear' }}
+            />
 
-            <div className="absolute left-1/2 top-1/2 flex h-32 w-32 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-[#D7E2EA]/18 bg-[#0C0C0C] text-[#D7E2EA] shadow-[0_0_70px_rgba(182,0,168,0.24)]">
-              <div className="flex flex-col items-center gap-2">
-                <ActiveIcon size={34} strokeWidth={1.65} />
-                <span className="text-[0.62rem] font-bold uppercase tracking-[0.22em] text-[#BBCCD7]/70">
-                  {active.label}
-                </span>
+            <div className="relative z-10 flex min-h-[500px] flex-col justify-between lg:min-h-[560px]">
+              <div>
+                <p className="text-xs font-black uppercase tracking-[0.28em] text-[#BBCCD7]/58">
+                  Card swap deck
+                </p>
+                <h3 className="mt-4 max-w-[420px] text-[clamp(2rem,4.8vw,4.4rem)] font-black uppercase leading-none tracking-tight text-[#D7E2EA]">
+                  Practical ability stack
+                </h3>
               </div>
+
+              <div className="relative mt-8 h-[410px] sm:h-[440px]">
+                <SkillCardSwapDeck onActiveChange={handleActiveSkillChange} />
+              </div>
+
             </div>
-
-            {professionalSkills.map((skill, index) => {
-              const angle = (index / professionalSkills.length) * Math.PI * 2 - Math.PI / 2;
-              const x = 50 + Math.cos(angle) * orbitRadius;
-              const y = 50 + Math.sin(angle) * orbitRadius;
-              const Icon = skill.icon;
-              const isActive = activeSkill === index;
-
-              return (
-                <button
-                  key={skill.title}
-                  type="button"
-                  className={`absolute flex h-[92px] w-[112px] -translate-x-1/2 -translate-y-1/2 cursor-pointer flex-col items-center justify-center gap-1.5 rounded-[26px] border text-center transition duration-300 hover:scale-[1.04] active:scale-95 ${
-                    isActive
-                      ? 'border-[#D7E2EA] bg-[#D7E2EA] text-[#0C0C0C] shadow-[0_0_44px_rgba(187,204,215,0.28)]'
-                      : 'border-[#D7E2EA]/14 bg-white/[0.045] text-[#D7E2EA] hover:border-[#D7E2EA]/44 hover:bg-white/[0.08]'
-                  }`}
-                  style={{ left: `${x}%`, top: `${y}%` }}
-                  onClick={() => setActiveSkill(index)}
-                >
-                  <Icon size={22} strokeWidth={1.7} />
-                  <span className="px-2 text-[0.64rem] font-bold uppercase leading-tight tracking-[0.16em]">
-                    {skill.label}
-                  </span>
-                  <span
-                    className={`mt-0.5 inline-flex items-center gap-1 text-[0.52rem] font-bold uppercase tracking-[0.18em] ${
-                      isActive ? 'text-[#0C0C0C]/46' : 'text-[#BBCCD7]/42'
-                    }`}
-                  >
-                    Click
-                    <ArrowUpRight size={10} strokeWidth={2.2} />
-                  </span>
-                </button>
-              );
-            })}
           </FadeIn>
 
-          <FadeIn delay={0.22} y={34}>
+          <div>
             <div className="rounded-[36px] border border-[#D7E2EA]/14 bg-white/[0.035] p-6 text-[#D7E2EA] shadow-[0_34px_110px_rgba(0,0,0,0.36)] sm:p-8">
               <div className="flex items-start justify-between gap-6">
                 <div>
@@ -1521,7 +1553,7 @@ function ProfessionalSkillsSection() {
                 ))}
               </div>
             </div>
-          </FadeIn>
+          </div>
         </div>
       </div>
     </section>

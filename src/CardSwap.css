@@ -1,0 +1,40 @@
+.rb-card-swap-container {
+  position: absolute;
+  left: 50%;
+  top: 54%;
+  transform: translate(-50%, -50%);
+  transform-origin: center center;
+  perspective: 900px;
+  overflow: visible;
+  cursor: pointer;
+  outline: none;
+}
+
+.rb-card-swap-container:focus-visible .rb-card:first-child {
+  border-color: rgba(215, 226, 234, 0.7);
+}
+
+.rb-card {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  border-radius: 28px;
+  border: 1px solid rgba(215, 226, 234, 0.16);
+  background: #0c0c0c;
+  transform-style: preserve-3d;
+  will-change: transform;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+@media (max-width: 768px) {
+  .rb-card-swap-container {
+    transform: translate(-50%, -50%) scale(0.82);
+  }
+}
+
+@media (max-width: 480px) {
+  .rb-card-swap-container {
+    transform: translate(-50%, -50%) scale(0.68);
+  }
+}

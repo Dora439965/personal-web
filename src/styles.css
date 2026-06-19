@@ -332,3 +332,9 @@ img {
     rgba(0, 0, 0, 0) 100%
   );
 }
+
+.university-bike-avatar {
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
+}
