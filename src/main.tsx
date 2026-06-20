@@ -26,9 +26,10 @@ import {
 import CardSwap, { Card } from './CardSwap';
 import './styles.css';
 
-const heroPortraitVideo = new URL('./liam3.mp4', import.meta.url).href;
+const heroPortraitVideo = new URL('./liam4.mp4', import.meta.url).href;
 const universityBikeGif = new URL('./hero2-once.GIF', import.meta.url).href;
 const universityBikeStill = new URL('./hero2-still.png', import.meta.url).href;
+const heroLoopBlinkLeadTime = 0.34;
 const universityRideDurationMs = 1500;
 
 const marqueeImages = [
@@ -248,6 +249,33 @@ const moods = [
 ];
 
 function HeroPortrait() {
+  const [loopBlinkId, setLoopBlinkId] = React.useState(0);
+  const loopBlinkArmedRef = React.useRef(true);
+
+  const triggerLoopBlink = React.useCallback(() => {
+    setLoopBlinkId((blinkId) => blinkId + 1);
+  }, []);
+
+  const handlePortraitTimeUpdate = React.useCallback(
+    (event: React.SyntheticEvent<HTMLVideoElement>) => {
+      const video = event.currentTarget;
+
+      if (!Number.isFinite(video.duration) || video.duration <= 0) return;
+
+      const timeRemaining = video.duration - video.currentTime;
+
+      if (video.currentTime < heroLoopBlinkLeadTime) {
+        loopBlinkArmedRef.current = true;
+      }
+
+      if (loopBlinkArmedRef.current && timeRemaining <= heroLoopBlinkLeadTime) {
+        loopBlinkArmedRef.current = false;
+        triggerLoopBlink();
+      }
+    },
+    [triggerLoopBlink],
+  );
+
   return (
     <div className="absolute left-1/2 top-1/2 z-10 w-[360px] max-w-[92vw] -translate-x-1/2 -translate-y-1/2 sm:w-[500px] md:w-[640px] lg:w-[760px]">
       <FadeIn delay={0.6} y={30} className="relative w-full">
@@ -263,10 +291,19 @@ function HeroPortrait() {
               controlsList="nodownload noplaybackrate noremoteplayback"
               tabIndex={-1}
               aria-label="Liu He portrait animation"
+              onTimeUpdate={handlePortraitTimeUpdate}
               onContextMenu={(event: React.MouseEvent<HTMLVideoElement>) => event.preventDefault()}
               className="hero-portrait-gif relative z-10 w-full object-contain drop-shadow-[0_24px_60px_rgba(0,0,0,0.55)]"
             />
-
+            <div
+              className={`hero-loop-blink pointer-events-none absolute inset-0 z-20 ${
+                loopBlinkId > 0 ? 'is-active' : ''
+              }`}
+              aria-hidden="true"
+            >
+              <span key={`top-${loopBlinkId}`} className="hero-loop-blink__panel hero-loop-blink__panel--top" />
+              <span key={`bottom-${loopBlinkId}`} className="hero-loop-blink__panel hero-loop-blink__panel--bottom" />
+            </div>
           </motion.div>
         </Magnet>
       </FadeIn>
