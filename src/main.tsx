@@ -262,7 +262,7 @@ function HeroPortrait() {
               controlsList="nodownload noplaybackrate noremoteplayback"
               tabIndex={-1}
               aria-label="Liu He portrait animation"
-              onContextMenu={(event) => event.preventDefault()}
+              onContextMenu={(event: React.MouseEvent<HTMLVideoElement>) => event.preventDefault()}
               className="hero-portrait-gif relative z-10 w-full object-contain drop-shadow-[0_24px_60px_rgba(0,0,0,0.55)]"
             />
 
@@ -1107,7 +1107,7 @@ function ExperienceModulePanel() {
                   ? 'border-[#D7E2EA] bg-[#D7E2EA] text-[#0C0C0C] shadow-[0_0_42px_rgba(187,204,215,0.22)]'
                   : 'border-[#D7E2EA]/14 bg-white/[0.035] text-[#D7E2EA] hover:border-[#D7E2EA]/44 hover:bg-white/[0.06]'
               }`}
-              onClick={(event) => {
+              onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
                 event.preventDefault();
                 setActiveModule(index);
               }}
