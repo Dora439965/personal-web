@@ -467,20 +467,64 @@ function MarqueeRow({
       transition={{ duration, repeat: Infinity, ease: 'linear' }}
       style={{ willChange: 'transform' }}
     >
-      {[...images, ...images].map((src, index) => (
-        <div
-          key={`${src}-${index}`}
-          className="h-[270px] w-[420px] shrink-0 overflow-hidden rounded-2xl"
-        >
-          <img
+      {[...images, ...images].map((src, index) => {
+        const isFirstPass = index < images.length;
+
+        return (
+          <MarqueeTile
+            key={`${src}-${index}`}
             src={src}
-            alt=""
-            loading="lazy"
-            className="h-full w-full object-cover"
+            priority={isFirstPass}
           />
-        </div>
-      ))}
+        );
+      })}
     </motion.div>
+  );
+}
+
+function MarqueeTile({ src, priority }: { src: string; priority: boolean }) {
+  const imageRef = React.useRef<HTMLImageElement | null>(null);
+  const [isLoaded, setIsLoaded] = React.useState(false);
+  const [hasError, setHasError] = React.useState(false);
+
+  React.useEffect(() => {
+    setIsLoaded(false);
+    setHasError(false);
+  }, [src]);
+
+  React.useEffect(() => {
+    const image = imageRef.current;
+
+    if (!image) return;
+
+    if (image.complete && image.naturalWidth > 0) {
+      setIsLoaded(true);
+      setHasError(false);
+    }
+  }, [src]);
+
+  return (
+    <div className="marquee-tile h-[270px] w-[420px] shrink-0 overflow-hidden rounded-2xl">
+      <div
+        className={`marquee-tile__placeholder ${
+          isLoaded && !hasError ? 'opacity-0' : 'opacity-100'
+        }`}
+        aria-hidden="true"
+      />
+      <img
+        ref={imageRef}
+        src={src}
+        alt=""
+        loading={priority ? 'eager' : 'lazy'}
+        decoding="async"
+        fetchPriority={priority ? 'high' : 'auto'}
+        className={`marquee-tile__image h-full w-full object-cover ${
+          isLoaded && !hasError ? 'opacity-100' : 'opacity-0'
+        }`}
+        onLoad={() => setIsLoaded(true)}
+        onError={() => setHasError(true)}
+      />
+    </div>
   );
 }
 

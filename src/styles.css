@@ -30,6 +30,68 @@ img {
   display: block;
 }
 
+.marquee-tile {
+  position: relative;
+  background:
+    radial-gradient(circle at 22% 18%, rgba(182, 0, 168, 0.18), transparent 34%),
+    radial-gradient(circle at 82% 74%, rgba(255, 184, 107, 0.12), transparent 30%),
+    linear-gradient(135deg, rgba(187, 204, 215, 0.1), rgba(17, 17, 18, 0.92) 52%, rgba(118, 33, 176, 0.14));
+  box-shadow: inset 0 0 0 1px rgba(215, 226, 234, 0.08);
+}
+
+.marquee-tile__placeholder,
+.marquee-tile__image {
+  position: absolute;
+  inset: 0;
+  transition: opacity 0.45s ease;
+}
+
+.marquee-tile__placeholder {
+  overflow: hidden;
+}
+
+.marquee-tile__placeholder::before,
+.marquee-tile__placeholder::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+}
+
+.marquee-tile__placeholder::before {
+  background:
+    linear-gradient(90deg, transparent, rgba(187, 204, 215, 0.16), transparent),
+    repeating-linear-gradient(
+      0deg,
+      rgba(255, 255, 255, 0.055) 0 1px,
+      transparent 1px 14px
+    );
+  transform: translateX(-110%);
+  animation: marquee-placeholder-scan 1.8s ease-in-out infinite;
+}
+
+.marquee-tile__placeholder::after {
+  inset: 1px;
+  border-radius: 15px;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.08), transparent 28%),
+    radial-gradient(circle at 50% 48%, rgba(12, 12, 12, 0.12), rgba(12, 12, 12, 0.54));
+}
+
+.marquee-tile__image {
+  position: absolute;
+}
+
+@keyframes marquee-placeholder-scan {
+  0% {
+    transform: translateX(-110%);
+  }
+
+  55%,
+  100% {
+    transform: translateX(110%);
+  }
+}
+
 .hero-heading {
   background: linear-gradient(180deg, #646973 0%, #bbccd7 100%);
   -webkit-background-clip: text;
