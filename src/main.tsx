@@ -29,6 +29,7 @@ import './styles.css';
 const heroPortraitVideo = new URL('./liam3.mp4', import.meta.url).href;
 const universityBikeGif = new URL('./hero2-once.GIF', import.meta.url).href;
 const universityBikeStill = new URL('./hero2-still.png', import.meta.url).href;
+const universityRideDurationMs = 1500;
 
 const marqueeImages = [
   'https://motionsites.ai/assets/hero-space-voyage-preview-eECLH3Yc.gif',
@@ -619,6 +620,14 @@ function UniversityCurveSection() {
   const activeMilestone = universityMilestones[activeIndex];
 
   React.useEffect(() => {
+    [universityBikeGif, universityBikeStill].forEach((src) => {
+      const image = new Image();
+      image.decoding = 'async';
+      image.src = src;
+    });
+  }, []);
+
+  React.useEffect(() => {
     return () => {
       if (segmentTimerRef.current !== null) {
         window.clearTimeout(segmentTimerRef.current);
@@ -651,7 +660,7 @@ function UniversityCurveSection() {
           }
 
           rideNextSegment();
-        }, 1500);
+        }, universityRideDurationMs);
       };
 
       rideNextSegment();
@@ -867,17 +876,34 @@ function UniversityCurveSection() {
                 left: `${position}%`,
                 top: `${avatarY}%`,
               }}
-              transition={{ duration: isRiding ? 1.5 : 0.25, ease: 'linear' }}
+              transition={{
+                duration: isRiding ? universityRideDurationMs / 1000 : 0.25,
+                ease: 'linear',
+              }}
               style={{ transform: 'translate(-50%, -50%)' }}
             >
               <div className="relative">
                 <div className="pointer-events-none absolute inset-[22%] -z-10 rounded-full bg-[#B600A8]/38 blur-2xl" />
                 <img
-                  key={isRiding ? bikeRunId : 'still'}
-                  src={isRiding ? universityBikeGif : universityBikeStill}
+                  src={universityBikeStill}
                   alt=""
                   aria-label="Liu He biking along the university curve"
                   className="university-bike-avatar w-full object-contain drop-shadow-[0_18px_34px_rgba(0,0,0,0.55)]"
+                  loading="eager"
+                  decoding="async"
+                  draggable={false}
+                  onContextMenu={(event) => event.preventDefault()}
+                />
+                <img
+                  key={bikeRunId}
+                  src={universityBikeGif}
+                  alt=""
+                  aria-hidden="true"
+                  className={`university-bike-avatar absolute inset-0 w-full object-contain drop-shadow-[0_18px_34px_rgba(0,0,0,0.55)] transition-opacity duration-150 ${
+                    isRiding ? 'opacity-100' : 'opacity-0'
+                  }`}
+                  loading="eager"
+                  decoding="async"
                   draggable={false}
                   onContextMenu={(event) => event.preventDefault()}
                 />
