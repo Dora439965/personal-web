@@ -23,6 +23,7 @@ import {
   useMotionValue,
   useSpring,
 } from 'framer-motion';
+import { gsap } from 'gsap';
 import CardSwap, { Card } from './CardSwap';
 import './styles.css';
 
@@ -1095,6 +1096,7 @@ const envisionModules = [
     icon: BrainCircuit,
     title: '智能洞察 Agent',
     tag: 'Insight Agent',
+    image: marqueeImages[5],
     description:
       '设计 40+ 指标异常判断机制，参与搭建风场/风机指标洞察图谱与指标血缘关系，定义 related to、cal from 等关系类型，并设计“目标指标 - 关联指标 - 分析工具 - 根因总结”的局部图谱执行逻辑。',
     points: [
@@ -1107,6 +1109,7 @@ const envisionModules = [
     icon: BellRing,
     title: '智能监盘 Agent',
     tag: 'Monitoring Agent',
+    image: marqueeImages[1],
     description:
       '参与设计自然语言创建告警规则能力，梳理规则模板库、触发模式知识库、测点知识库与业务名词知识库，支持 LLM 将用户语义转换为规则引擎可校验的结构化 JSON。',
     points: [
@@ -1119,6 +1122,7 @@ const envisionModules = [
     icon: DatabaseZap,
     title: '业务知识库构建',
     tag: 'Knowledge Base',
+    image: marqueeImages[12],
     description:
       '基于公司已有应用软件，独立梳理风电/光伏业务系统应用菜单知识库，共沉淀 23 个核心菜单场景，增强 Agent 对业务菜单、功能边界和跳转参数的理解能力。',
     points: [
@@ -1131,6 +1135,7 @@ const envisionModules = [
     icon: TestTube2,
     title: '自动化测试集',
     tag: 'Test Set',
+    image: marqueeImages[3],
     description:
       '搭建 EAM 缺陷单单轮自动化测试集，设计自动化用例生成规则，覆盖正确填写、缺少必填等多个典型场景，共生成 280+ 测试用例。',
     points: [
@@ -1143,6 +1148,7 @@ const envisionModules = [
     icon: Code2,
     title: 'AI Demo 与 Agent 辅助开发',
     tag: 'AI Demo',
+    image: marqueeImages[8],
     description:
       '基于已有算法更新智能排程应用功能设计和交互设计，并借助 Kiro 平台搭建新的智能排程应用 demo；同时将织信低代码平台 MCP 接入 Kiro，建立 steering - hook - docs 三层架构。',
     points: [
@@ -1194,64 +1200,195 @@ const TextCascade = React.memo(function TextCascade({
   );
 });
 
+function FlowingMenu({
+  items,
+  activeIndex,
+  onSelect,
+  speed = 15,
+}: {
+  items: typeof envisionModules;
+  activeIndex: number;
+  onSelect: (index: number) => void;
+  speed?: number;
+}) {
+  return (
+    <div className="experience-flowing-menu" style={{ backgroundColor: '#0C0C0C' }}>
+      <nav className="experience-flowing-menu__list" aria-label="Experience modules">
+        {items.map((item, index) => (
+          <FlowingMenuItem
+            key={item.title}
+            item={item}
+            index={index}
+            isActive={activeIndex === index}
+            speed={speed}
+            onSelect={onSelect}
+          />
+        ))}
+      </nav>
+    </div>
+  );
+}
+
+function FlowingMenuItem({
+  item,
+  index,
+  isActive,
+  speed,
+  onSelect,
+}: {
+  item: (typeof envisionModules)[number];
+  index: number;
+  isActive: boolean;
+  speed: number;
+  onSelect: (index: number) => void;
+}) {
+  const itemRef = React.useRef<HTMLDivElement | null>(null);
+  const marqueeRef = React.useRef<HTMLDivElement | null>(null);
+  const marqueeInnerRef = React.useRef<HTMLDivElement | null>(null);
+  const animationRef = React.useRef<gsap.core.Tween | null>(null);
+  const [repetitions, setRepetitions] = React.useState(4);
+  const Icon = item.icon;
+
+  const findClosestEdge = React.useCallback((mouseX: number, mouseY: number, width: number, height: number) => {
+    const topEdgeDist = (mouseX - width / 2) ** 2 + mouseY ** 2;
+    const bottomEdgeDist = (mouseX - width / 2) ** 2 + (mouseY - height) ** 2;
+    return topEdgeDist < bottomEdgeDist ? 'top' : 'bottom';
+  }, []);
+
+  React.useEffect(() => {
+    const calculateRepetitions = () => {
+      const marqueeContent = marqueeInnerRef.current?.querySelector<HTMLElement>('.experience-flowing-menu__part');
+      if (!marqueeContent) return;
+
+      const contentWidth = marqueeContent.offsetWidth;
+      if (contentWidth === 0) return;
+
+      const menuWidth = itemRef.current?.offsetWidth ?? window.innerWidth;
+      const needed = Math.ceil(menuWidth / contentWidth) + 3;
+      setRepetitions(Math.max(4, needed));
+    };
+
+    calculateRepetitions();
+    window.addEventListener('resize', calculateRepetitions);
+    return () => window.removeEventListener('resize', calculateRepetitions);
+  }, [item.title, item.image]);
+
+  React.useEffect(() => {
+    const timer = window.setTimeout(() => {
+      const marqueeContent = marqueeInnerRef.current?.querySelector<HTMLElement>('.experience-flowing-menu__part');
+      if (!marqueeContent || !marqueeInnerRef.current) return;
+
+      const contentWidth = marqueeContent.offsetWidth;
+      if (contentWidth === 0) return;
+
+      animationRef.current?.kill();
+      animationRef.current = gsap.to(marqueeInnerRef.current, {
+        x: -contentWidth,
+        duration: speed,
+        ease: 'none',
+        repeat: -1,
+      });
+    }, 50);
+
+    return () => {
+      window.clearTimeout(timer);
+      animationRef.current?.kill();
+    };
+  }, [item.title, item.image, repetitions, speed]);
+
+  const handleMouseEnter = (event: React.MouseEvent<HTMLButtonElement>) => {
+    if (!itemRef.current || !marqueeRef.current || !marqueeInnerRef.current) return;
+
+    const rect = itemRef.current.getBoundingClientRect();
+    const edge = findClosestEdge(event.clientX - rect.left, event.clientY - rect.top, rect.width, rect.height);
+
+    gsap
+      .timeline({ defaults: { duration: 0.58, ease: 'expo.out' } })
+      .set(marqueeRef.current, { y: edge === 'top' ? '-101%' : '101%' }, 0)
+      .set(marqueeInnerRef.current, { y: edge === 'top' ? '101%' : '-101%' }, 0)
+      .to([marqueeRef.current, marqueeInnerRef.current], { y: '0%' }, 0);
+  };
+
+  const handleMouseLeave = (event: React.MouseEvent<HTMLButtonElement>) => {
+    if (!itemRef.current || !marqueeRef.current || !marqueeInnerRef.current) return;
+
+    const rect = itemRef.current.getBoundingClientRect();
+    const edge = findClosestEdge(event.clientX - rect.left, event.clientY - rect.top, rect.width, rect.height);
+
+    gsap
+      .timeline({ defaults: { duration: 0.58, ease: 'expo.out' } })
+      .to(marqueeRef.current, { y: edge === 'top' ? '-101%' : '101%' }, 0)
+      .to(marqueeInnerRef.current, { y: edge === 'top' ? '101%' : '-101%' }, 0);
+  };
+
+  return (
+    <div
+      className={`experience-flowing-menu__item ${isActive ? 'is-active' : ''}`}
+      ref={itemRef}
+    >
+      <button
+        type="button"
+        className="experience-flowing-menu__button"
+        onClick={() => onSelect(index)}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+        aria-pressed={isActive}
+      >
+        <span className="experience-flowing-menu__index">{String(index + 1).padStart(2, '0')}</span>
+        <span className="experience-flowing-menu__title">{item.title}</span>
+        <Icon className="experience-flowing-menu__icon" size={22} strokeWidth={1.8} />
+      </button>
+      <div className="experience-flowing-menu__marquee" ref={marqueeRef}>
+        <div className="experience-flowing-menu__inner-wrap">
+          <div className="experience-flowing-menu__inner" ref={marqueeInnerRef} aria-hidden="true">
+            {[...Array(repetitions)].map((_, repeatIndex) => (
+              <div className="experience-flowing-menu__part" key={repeatIndex}>
+                <span>{item.title}</span>
+                <div
+                  className="experience-flowing-menu__image"
+                  style={{ backgroundImage: `url(${item.image})` }}
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function ExperienceModulePanel() {
   const [activeModule, setActiveModule] = React.useState(0);
   const active = envisionModules[activeModule];
   const ActiveIcon = active.icon;
 
   return (
-    <>
-      <div className="mt-10 grid gap-3 sm:grid-cols-2">
-        {envisionModules.map((module, index) => {
-          const Icon = module.icon;
-          const isActive = activeModule === index;
-          return (
-            <motion.button
-              key={module.title}
-              type="button"
-              className={`group flex min-h-[118px] flex-col items-start justify-between rounded-[28px] border-2 p-5 text-left transition-colors duration-300 ${
-                isActive
-                  ? 'border-[#D7E2EA] bg-[#D7E2EA] text-[#0C0C0C] shadow-[0_0_42px_rgba(187,204,215,0.22)]'
-                  : 'border-[#D7E2EA]/14 bg-white/[0.035] text-[#D7E2EA] hover:border-[#D7E2EA]/44 hover:bg-white/[0.06]'
-              }`}
-              onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
-                event.preventDefault();
-                setActiveModule(index);
-              }}
-              whileHover={{ y: -6, rotate: isActive ? 0 : -0.6 }}
-              whileTap={{ scale: 0.98 }}
-            >
-              <div className="flex w-full items-center justify-between gap-4">
-                <Icon
-                  size={24}
-                  strokeWidth={1.8}
-                  className={isActive ? 'text-[#0C0C0C]' : 'text-[#BBCCD7]'}
-                />
-                <span
-                  className={`text-[0.65rem] font-bold uppercase tracking-[0.22em] ${
-                    isActive ? 'text-[#0C0C0C]/55' : 'text-[#D7E2EA]/45'
-                  }`}
-                >
-                  {module.tag}
-                </span>
-              </div>
-              <p className="mt-5 text-xl font-black leading-tight tracking-tight">
-                {module.title}
-              </p>
-            </motion.button>
-          );
-        })}
-      </div>
+    <div className="experience-modules-layout mt-8">
+      <FlowingMenu
+        items={envisionModules}
+        activeIndex={activeModule}
+        onSelect={setActiveModule}
+        speed={13}
+      />
 
-      <div className="mt-6 rounded-[32px] border border-[#D7E2EA]/16 bg-[#111]/88 p-6 text-white shadow-[0_26px_90px_rgba(0,0,0,0.42)] sm:p-8">
+      <motion.div
+        key={active.title}
+        className="experience-module-card text-white"
+        initial={{ opacity: 0, y: 18, filter: 'blur(8px)' }}
+        animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+        transition={{ duration: 0.45, ease: [0.25, 0.1, 0.25, 1] }}
+      >
         <div className="flex items-start justify-between gap-5">
           <div>
             <p className="text-xs font-bold uppercase tracking-[0.28em] text-[#BBCCD7]/72">
               Selected Module
             </p>
-            <h4 className="mt-3 text-[clamp(1.6rem,4vw,3.6rem)] font-black leading-none tracking-tight">
+            <h4 className="mt-3 text-[clamp(1.8rem,4.8vw,4.4rem)] font-black leading-none tracking-tight">
               {active.title}
             </h4>
+            <p className="mt-4 text-xs font-bold uppercase tracking-[0.24em] text-[#D7E2EA]/52">
+              {active.tag}
+            </p>
           </div>
           <motion.div
             className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full border border-white/20 bg-white/[0.08]"
@@ -1261,10 +1398,10 @@ function ExperienceModulePanel() {
             <ActiveIcon size={28} strokeWidth={1.7} />
           </motion.div>
         </div>
-        <p className="mt-6 text-base font-light leading-relaxed text-white/74 sm:text-lg">
+        <p className="mt-7 text-base font-light leading-relaxed text-white/74 sm:text-lg">
           {active.description}
         </p>
-        <ul className="mt-7 grid gap-3">
+        <ul className="mt-8 grid gap-3">
           {active.points.map((point) => (
             <li
               key={point}
@@ -1279,8 +1416,21 @@ function ExperienceModulePanel() {
             </li>
           ))}
         </ul>
-      </div>
-    </>
+      </motion.div>
+    </div>
+  );
+}
+
+function ExperienceImpactPanel() {
+  return (
+    <div className="experience-impact-panel">
+      {envisionStats.map((stat) => (
+        <div className="experience-impact-panel__stat" key={stat.label}>
+          <strong>{stat.value}</strong>
+          <span>{stat.label}</span>
+        </div>
+      ))}
+    </div>
   );
 }
 
@@ -1288,7 +1438,7 @@ function ExperienceSection() {
   return (
     <section
       id="experience"
-      className="relative overflow-hidden rounded-t-[40px] bg-[#0C0C0C] px-5 py-20 text-[#D7E2EA] sm:rounded-t-[50px] sm:px-8 sm:py-24 md:rounded-t-[60px] md:px-10 md:py-32"
+      className="relative overflow-hidden rounded-t-[40px] bg-[#0C0C0C] px-5 py-16 text-[#D7E2EA] sm:rounded-t-[50px] sm:px-8 sm:py-20 md:rounded-t-[60px] md:px-10 md:py-24"
     >
       <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(215,226,234,0.06),transparent_24%),radial-gradient(circle_at_20%_18%,rgba(187,204,215,0.12),transparent_30%),radial-gradient(circle_at_82%_48%,rgba(182,0,168,0.15),transparent_34%)]" />
       <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#D7E2EA]/30 to-transparent" />
@@ -1300,12 +1450,12 @@ function ExperienceSection() {
       <FadeIn
         as="h2"
         y={40}
-        className="hero-heading relative z-10 text-center text-[clamp(3rem,12vw,160px)] font-black uppercase leading-none tracking-tight"
+        className="hero-heading relative z-10 text-center text-[clamp(3rem,10vw,136px)] font-black uppercase leading-none tracking-tight"
       >
         Experience
       </FadeIn>
 
-      <div className="relative z-10 mx-auto mt-14 grid max-w-7xl gap-8 md:mt-20 md:grid-cols-[0.82fr_1.18fr]">
+      <div className="relative z-10 mx-auto mt-10 grid max-w-7xl gap-8 md:mt-12 md:grid-cols-[0.82fr_1.18fr]">
         <FadeIn
           delay={0.15}
           y={30}
@@ -1323,33 +1473,6 @@ function ExperienceSection() {
           <p className="mt-4 text-lg font-semibold uppercase tracking-wide text-[#BBCCD7]/84 sm:text-xl">
             AI & 新能源产品经理
           </p>
-          <div className="mt-8 grid grid-cols-2 gap-3">
-            {envisionStats.map((stat, index) => (
-              <motion.div
-                key={stat.label}
-                className="rounded-[24px] border border-[#D7E2EA]/14 bg-white/[0.035] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]"
-                initial={{ opacity: 0, y: 24 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                whileHover={{
-                  y: -6,
-                  backgroundColor: 'rgba(215,226,234,0.075)',
-                }}
-                transition={{
-                  delay: 0.22 + index * 0.06,
-                  duration: 0.55,
-                  ease: [0.25, 0.1, 0.25, 1],
-                }}
-                viewport={{ once: true, amount: 0.3 }}
-              >
-                <p className="text-[clamp(2rem,5vw,3.8rem)] font-black leading-none">
-                  {stat.value}
-                </p>
-                <p className="mt-3 text-xs font-medium uppercase leading-snug tracking-widest text-[#D7E2EA]/58">
-                  {stat.label}
-                </p>
-              </motion.div>
-            ))}
-          </div>
         </FadeIn>
 
         <FadeIn
@@ -1365,13 +1488,20 @@ function ExperienceSection() {
               Energy AI
             </span>
           </div>
-          <div className="mt-8">
+          <ExperienceImpactPanel />
+          <div className="mt-7">
             <TextCascade text={experienceIntroText} />
           </div>
-
-          <ExperienceModulePanel />
         </FadeIn>
       </div>
+
+      <FadeIn
+        delay={0.32}
+        y={30}
+        className="relative z-10 mx-auto max-w-7xl"
+      >
+        <ExperienceModulePanel />
+      </FadeIn>
     </section>
   );
 }
