@@ -30,6 +30,7 @@ import './styles.css';
 const heroPortraitVideo = new URL('./liam4.mp4', import.meta.url).href;
 const universityBikeGif = new URL('./hero2-once.GIF', import.meta.url).href;
 const universityBikeStill = new URL('./hero2-still.png', import.meta.url).href;
+const origamiGesturePreview = new URL('./origami-gesture-preview.png', import.meta.url).href;
 const heroLoopBlinkLeadTime = 0.34;
 const universityRideDurationMs = 1500;
 
@@ -84,6 +85,7 @@ const projects = [
     name: 'Origami Gesture Timeline',
     status: 'Live Project',
     url: 'https://dora439965.github.io/sculpture/',
+    previewImage: origamiGesturePreview,
     description:
       '基于 MediaPipe Hands 搭建的手势交互时间轴，用摄像头识别单手张开与聚拢程度，并将 handCloseProgress 映射到视频 currentTime，实现用手势控制折纸雕塑影像展开进度的互动体验。',
     highlights: ['MediaPipe Hands', '手势识别', '时间轴控制', '互动影像'],
@@ -1580,17 +1582,31 @@ function ProjectTile({
                 {project.eyebrow}
               </span>
             </div>
-            <div className="relative aspect-[16/10] overflow-hidden">
-              <iframe
-                src={project.url}
-                title={`${project.name} preview`}
-                loading="lazy"
-                className="pointer-events-none h-full w-full origin-top-left scale-[0.78] border-0 bg-[#111]"
-                style={{
-                  width: '128.5%',
-                  height: '128.5%',
-                }}
-              />
+            <div
+              className={`relative overflow-hidden ${
+                project.previewImage ? 'aspect-[1782/1622]' : 'aspect-[16/10]'
+              }`}
+            >
+              {project.previewImage ? (
+                <img
+                  src={project.previewImage}
+                  alt={`${project.name} preview`}
+                  loading="lazy"
+                  decoding="async"
+                  className="h-full w-full bg-[#111] object-contain transition-transform duration-500 group-hover:scale-[1.02]"
+                />
+              ) : (
+                <iframe
+                  src={project.url}
+                  title={`${project.name} preview`}
+                  loading="lazy"
+                  className="pointer-events-none h-full w-full origin-top-left scale-[0.78] border-0 bg-[#111]"
+                  style={{
+                    width: '128.5%',
+                    height: '128.5%',
+                  }}
+                />
+              )}
               <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,transparent_62%,rgba(12,12,12,0.72)_100%)]" />
             </div>
           </div>
