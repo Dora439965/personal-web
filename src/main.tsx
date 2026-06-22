@@ -78,6 +78,16 @@ const projects = [
       '基于已有算法更新智能排程应用的功能设计和交互设计，并借助 Kiro 平台搭建新的应用 demo，降低用户理解和使用智能排程能力的门槛。',
     highlights: ['功能设计', '交互设计', 'Kiro 搭建', '智能排程'],
   },
+  {
+    number: '03',
+    eyebrow: 'Gesture Interaction',
+    name: 'Origami Gesture Timeline',
+    status: 'Live Project',
+    url: 'https://dora439965.github.io/sculpture/',
+    description:
+      '基于 MediaPipe Hands 搭建的手势交互时间轴，用摄像头识别单手张开与聚拢程度，并将 handCloseProgress 映射到视频 currentTime，实现用手势控制折纸雕塑影像展开进度的互动体验。',
+    highlights: ['MediaPipe Hands', '手势识别', '时间轴控制', '互动影像'],
+  },
 ];
 
 const professionalSkills = [
@@ -518,7 +528,6 @@ function MarqueeTile({ src, priority }: { src: string; priority: boolean }) {
         alt=""
         loading={priority ? 'eager' : 'lazy'}
         decoding="async"
-        fetchPriority={priority ? 'high' : 'auto'}
         className={`marquee-tile__image h-full w-full object-cover ${
           isLoaded && !hasError ? 'opacity-100' : 'opacity-0'
         }`}
@@ -1473,6 +1482,9 @@ function ExperienceSection() {
           <p className="mt-4 text-lg font-semibold uppercase tracking-wide text-[#BBCCD7]/84 sm:text-xl">
             AI & 新能源产品经理
           </p>
+          <div className="mt-8 max-w-[680px]">
+            <TextCascade text={experienceIntroText} />
+          </div>
         </FadeIn>
 
         <FadeIn
@@ -1489,9 +1501,6 @@ function ExperienceSection() {
             </span>
           </div>
           <ExperienceImpactPanel />
-          <div className="mt-7">
-            <TextCascade text={experienceIntroText} />
-          </div>
         </FadeIn>
       </div>
 
