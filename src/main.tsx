@@ -2,8 +2,11 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import {
   ArrowUpRight,
+  BarChart3,
   BellRing,
   BrainCircuit,
+  Cable,
+  CheckCircle2,
   Code2,
   DatabaseZap,
   FileText,
@@ -16,12 +19,16 @@ import {
   Send,
   Sparkles,
   TestTube2,
+  Users,
   Workflow,
 } from 'lucide-react';
 import {
   motion,
+  useReducedMotion,
   useMotionValue,
+  useScroll,
   useSpring,
+  useTransform,
 } from 'framer-motion';
 import { gsap } from 'gsap';
 import CardSwap, { Card } from './CardSwap';
@@ -94,13 +101,13 @@ const projects = [
 
 const professionalSkills = [
   {
-    title: 'AI 应用与 Agent 开发',
+    title: 'AI 应用能力',
     label: 'AI Stack',
     level: 94,
     icon: Sparkles,
     summary:
-      '熟练使用 Codex、Claude Code、Kiro 等智能体平台进行产品设计、产品开发、Demo 搭建；熟练运用 Coze、Dify 等低代码平台进行工作流搭建和 Agent 开发。',
-    tools: ['Codex', 'Claude Code', 'Kiro', 'Coze', 'Dify', 'Agent Workflow'],
+      '熟练使用 Codex、Claude Code、OpenClaw 等 Agent 平台进行产品设计、产品开发与 Demo 搭建；了解 Prompt Chaining、ReAct、Router + Skills、Multi-Agent 等多种 Agent 架构。',
+    tools: ['Codex', 'Claude Code', 'OpenClaw', 'Prompt Chaining', 'ReAct', 'Router + Skills', 'Multi-Agent'],
   },
   {
     title: '英语与跨文化沟通',
@@ -1173,6 +1180,67 @@ const envisionModules = [
 const experienceIntroText =
   '围绕智能洞察 Agent、智能监盘 Agent、业务菜单知识库、自动化测试集与 AI Demo 搭建，将复杂新能源业务场景拆解为可被大模型理解、调用、校验和交付的产品逻辑。';
 
+const titanStats = [
+  { value: '4 → 40+', label: '连接器生态规模' },
+  { value: '2x+', label: '批量接入效率' },
+  { value: '20+', label: '高价值潜在用户' },
+];
+
+const titanStages = [
+  {
+    icon: Cable,
+    step: '01',
+    title: '连接器生态',
+    tag: 'Ecosystem',
+    summary:
+      '梳理 MCP、OpenClaw 插件与官方 API 自建等接入路径，综合用户场景、授权限制和实现成本评定优先级。',
+    result: '连接器从 4 个增长至 40+，覆盖出海营销多个业务维度。',
+    details: [
+      '沉淀 navos-connector-research skill，标准化竞品调研、能力矩阵、授权流程与 App / API 申请。',
+      '接入第三方集成平台与数据源平台，形成可复用的批量接入方案。',
+    ],
+  },
+  {
+    icon: CheckCircle2,
+    step: '02',
+    title: '能力评测',
+    tag: 'Evaluation',
+    summary:
+      '围绕 Agent Runtime 能力，将团队自研 Skill 与 WorkBuddy、DeepSeek Harness 进行横向测评。',
+    result: '将输出质量、耗时、成本与准确性转化为可复现的评测流程。',
+    details: [
+      '设计多维评测口径，避免只用单一结果判断 Agent 能力。',
+      '搭建批量自动化测评平台并投入生产使用。',
+    ],
+  },
+  {
+    icon: BarChart3,
+    step: '03',
+    title: '数据看板',
+    tag: 'Observability',
+    summary:
+      '从用户信息、用户行为、留存到付费设计完整指标体系，定义统计口径与计算逻辑。',
+    result: '让 Navos 的产品使用与商业转化拥有持续可观察的数据基线。',
+    details: [
+      '建立从新增、活跃到留存与付费的用户生命周期视角。',
+      '统一指标定义，为产品迭代与运营判断提供依据。',
+    ],
+  },
+  {
+    icon: Users,
+    step: '04',
+    title: '客户反馈',
+    tag: 'Feedback Loop',
+    summary:
+      '在 ChinaJoy 面向出海营销客户完成产品介绍与方案沟通，并持续收集真实使用中的 Bad Case。',
+    result: '沉淀 20+ 高价值潜在用户，并把客户问题回流到 Runtime 调优。',
+    details: [
+      '整理 Navos 使用文档与面向业务场景的解决方案。',
+      '在 Langfuse 拆解 Trace 链路，辅助可靠性分析与运行时优化。',
+    ],
+  },
+];
+
 const TextCascade = React.memo(function TextCascade({
   text,
 }: {
@@ -1445,11 +1513,195 @@ function ExperienceImpactPanel() {
   );
 }
 
+function TitanOperationsLoop() {
+  const [activeStage, setActiveStage] = React.useState(0);
+  const active = titanStages[activeStage];
+  const ActiveIcon = active.icon;
+
+  return (
+    <div className="titan-loop">
+      <div className="titan-loop__rail" role="tablist" aria-label="Navos Agent 运营闭环">
+        <span className="titan-loop__rail-label">Agent operations loop</span>
+        {titanStages.map((stage, index) => {
+          const Icon = stage.icon;
+          const isActive = index === activeStage;
+
+          return (
+            <button
+              type="button"
+              role="tab"
+              aria-selected={isActive}
+              className={`titan-loop__node ${isActive ? 'is-active' : ''}`}
+              key={stage.title}
+              onClick={() => setActiveStage(index)}
+            >
+              <span className="titan-loop__node-index">{stage.step}</span>
+              <span className="titan-loop__node-icon"><Icon size={20} strokeWidth={1.7} /></span>
+              <span className="titan-loop__node-copy">
+                <strong>{stage.title}</strong>
+                <small>{stage.tag}</small>
+              </span>
+            </button>
+          );
+        })}
+        <span className="titan-loop__return" aria-hidden="true">Feedback → Ecosystem</span>
+      </div>
+
+      <motion.article
+        key={active.title}
+        className="titan-loop__detail"
+        role="tabpanel"
+        initial={{ opacity: 0, x: 22, filter: 'blur(8px)' }}
+        animate={{ opacity: 1, x: 0, filter: 'blur(0px)' }}
+        transition={{ duration: 0.42, ease: [0.25, 0.1, 0.25, 1] }}
+      >
+        <div className="titan-loop__detail-topline">
+          <span>{active.step} / 04</span>
+          <span>Navos · {active.tag}</span>
+        </div>
+        <div className="titan-loop__detail-heading">
+          <div>
+            <p>Active capability</p>
+            <h4>{active.title}</h4>
+          </div>
+          <motion.div
+            className="titan-loop__active-icon"
+            animate={{ rotate: [0, 8, -6, 0], scale: [1, 1.06, 1] }}
+            transition={{ duration: 4.2, repeat: Infinity, ease: 'easeInOut' }}
+          >
+            <ActiveIcon size={30} strokeWidth={1.6} />
+          </motion.div>
+        </div>
+        <p className="titan-loop__summary">{active.summary}</p>
+        <div className="titan-loop__result">
+          <span>Outcome</span>
+          <strong>{active.result}</strong>
+        </div>
+        <div className="titan-loop__details">
+          {active.details.map((detail, index) => (
+            <div key={detail}>
+              <span>{String(index + 1).padStart(2, '0')}</span>
+              <p>{detail}</p>
+            </div>
+          ))}
+        </div>
+      </motion.article>
+    </div>
+  );
+}
+
+function ExperienceScrollStack() {
+  const secondCardRef = React.useRef<HTMLElement>(null);
+  const reduceMotion = useReducedMotion();
+  const { scrollYProgress } = useScroll({
+    target: secondCardRef,
+    offset: ['start 88%', 'start 22%'],
+  });
+  const firstScale = useTransform(scrollYProgress, [0, 1], [1, 0.965]);
+  const firstOpacity = useTransform(scrollYProgress, [0, 1], [1, 0.48]);
+  const firstFilter = useTransform(
+    scrollYProgress,
+    [0, 1],
+    ['brightness(1) saturate(1)', 'brightness(0.46) saturate(0.72)'],
+  );
+  const secondY = useTransform(scrollYProgress, [0, 1], [72, 0]);
+
+  return (
+    <div className="experience-scroll-stack">
+      <motion.article
+        className="experience-stack-card experience-stack-card--first"
+        style={
+          reduceMotion
+            ? undefined
+            : { scale: firstScale, opacity: firstOpacity, filter: firstFilter }
+        }
+      >
+        <span className="experience-stack-card__folio">01 / 02</span>
+        <div className="experience-stack-card__header">
+          <div className="border-t border-[#D7E2EA]/18 pt-5">
+            <p className="experience-stack-card__number">01</p>
+            <p className="experience-stack-card__period">
+              2026.03 - 2026.07
+            </p>
+            <h3 className="experience-stack-card__company">
+              远景科技
+            </h3>
+            <p className="experience-stack-card__role">
+              AI & 新能源产品经理
+            </p>
+            <div className="experience-stack-card__summary">
+              <TextCascade text={experienceIntroText} />
+            </div>
+          </div>
+
+          <div className="border-t border-[#D7E2EA]/18 pt-5">
+            <div className="experience-stack-card__tags flex flex-wrap items-center gap-3">
+              <span className="rounded-full border border-[#D7E2EA]/22 bg-white/[0.035] px-4 py-2 text-xs font-bold uppercase tracking-[0.22em] text-[#D7E2EA]/78">
+                Agent Product Design
+              </span>
+              <span className="rounded-full border border-[#BBCCD7]/20 bg-[#D7E2EA] px-4 py-2 text-xs font-bold uppercase tracking-[0.22em] text-[#0C0C0C]">
+                Energy AI
+              </span>
+            </div>
+            <ExperienceImpactPanel />
+          </div>
+        </div>
+        <ExperienceModulePanel />
+      </motion.article>
+
+      <motion.article
+        ref={secondCardRef}
+        className="experience-stack-card experience-stack-card--second"
+        style={reduceMotion ? undefined : { y: secondY }}
+      >
+        <span className="experience-stack-card__folio">02 / 02</span>
+        <div className="experience-stack-card__header">
+          <div className="border-t border-[#D7E2EA]/18 pt-5">
+            <p className="experience-stack-card__number">02</p>
+            <p className="experience-stack-card__period">
+              2026.07 - 2026.11
+            </p>
+            <h3 className="experience-stack-card__company">
+              钛动科技
+            </h3>
+            <p className="experience-stack-card__role">
+              AI 产品经理 · Navos
+            </p>
+            <p className="experience-stack-card__summary-copy">
+              将上一段经历中形成的 Agent 产品设计与评测能力带入通用平台，从连接器供给开始，继续建立能力评测、数据观察与客户反馈回流，让 Agent 从“能完成任务”走向可扩展、可衡量、可持续优化。
+            </p>
+          </div>
+
+          <div className="border-t border-[#D7E2EA]/18 pt-5">
+            <div className="experience-stack-card__tags flex flex-wrap items-center gap-3">
+              <span className="rounded-full border border-[#D7E2EA]/22 bg-white/[0.035] px-4 py-2 text-xs font-bold uppercase tracking-[0.22em] text-[#D7E2EA]/78">
+                Agent Platform
+              </span>
+              <span className="rounded-full border border-[#BBCCD7]/20 bg-[#D7E2EA] px-4 py-2 text-xs font-bold uppercase tracking-[0.22em] text-[#0C0C0C]">
+                Growth Loop
+              </span>
+            </div>
+            <div className="titan-stats">
+              {titanStats.map((stat) => (
+                <div key={stat.label}>
+                  <strong>{stat.value}</strong>
+                  <span>{stat.label}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+        <TitanOperationsLoop />
+      </motion.article>
+    </div>
+  );
+}
+
 function ExperienceSection() {
   return (
     <section
       id="experience"
-      className="relative overflow-hidden rounded-t-[40px] bg-[#0C0C0C] px-5 py-16 text-[#D7E2EA] sm:rounded-t-[50px] sm:px-8 sm:py-20 md:rounded-t-[60px] md:px-10 md:py-24"
+      className="relative overflow-clip rounded-t-[40px] bg-[#0C0C0C] px-5 py-16 text-[#D7E2EA] sm:rounded-t-[50px] sm:px-8 sm:py-20 md:rounded-t-[60px] md:px-10 md:py-24"
     >
       <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(215,226,234,0.06),transparent_24%),radial-gradient(circle_at_20%_18%,rgba(187,204,215,0.12),transparent_30%),radial-gradient(circle_at_82%_48%,rgba(182,0,168,0.15),transparent_34%)]" />
       <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#D7E2EA]/30 to-transparent" />
@@ -1466,53 +1718,7 @@ function ExperienceSection() {
         Experience
       </FadeIn>
 
-      <div className="relative z-10 mx-auto mt-10 grid max-w-7xl gap-8 md:mt-12 md:grid-cols-[0.82fr_1.18fr]">
-        <FadeIn
-          delay={0.15}
-          y={30}
-          className="border-t border-[#D7E2EA]/18 pt-5"
-        >
-          <p className="text-[clamp(3.5rem,10vw,8rem)] font-black leading-none tracking-tight">
-            01
-          </p>
-          <p className="mt-5 text-sm font-medium uppercase tracking-widest text-[#D7E2EA]/58">
-            2026.03 - 2026.07
-          </p>
-          <h3 className="mt-6 text-[clamp(2.2rem,5vw,5rem)] font-black uppercase leading-none tracking-tight">
-            远景科技
-          </h3>
-          <p className="mt-4 text-lg font-semibold uppercase tracking-wide text-[#BBCCD7]/84 sm:text-xl">
-            AI & 新能源产品经理
-          </p>
-          <div className="mt-8 max-w-[680px]">
-            <TextCascade text={experienceIntroText} />
-          </div>
-        </FadeIn>
-
-        <FadeIn
-          delay={0.25}
-          y={30}
-          className="border-t border-[#D7E2EA]/18 pt-5"
-        >
-          <div className="flex flex-wrap items-center gap-3">
-            <span className="rounded-full border border-[#D7E2EA]/22 bg-white/[0.035] px-4 py-2 text-xs font-bold uppercase tracking-[0.22em] text-[#D7E2EA]/78">
-              Agent Product Design
-            </span>
-            <span className="rounded-full border border-[#BBCCD7]/20 bg-[#D7E2EA] px-4 py-2 text-xs font-bold uppercase tracking-[0.22em] text-[#0C0C0C]">
-              Energy AI
-            </span>
-          </div>
-          <ExperienceImpactPanel />
-        </FadeIn>
-      </div>
-
-      <FadeIn
-        delay={0.32}
-        y={30}
-        className="relative z-10 mx-auto max-w-7xl"
-      >
-        <ExperienceModulePanel />
-      </FadeIn>
+      <ExperienceScrollStack />
     </section>
   );
 }
