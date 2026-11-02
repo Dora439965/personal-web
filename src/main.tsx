@@ -34,7 +34,7 @@ import { gsap } from 'gsap';
 import CardSwap, { Card } from './CardSwap';
 import './styles.css';
 
-const heroPortraitVideo = new URL('./liam4.mp4', import.meta.url).href;
+const heroPortraitVideo = '/liam4.mp4';
 const universityBikeGif = new URL('./hero2-once.GIF', import.meta.url).href;
 const universityBikeStill = new URL('./hero2-still.png', import.meta.url).href;
 const origamiGesturePreview = new URL('./origami-gesture-preview.png', import.meta.url).href;
@@ -42,27 +42,26 @@ const heroLoopBlinkLeadTime = 0.34;
 const universityRideDurationMs = 1500;
 
 const marqueeImages = [
-  'https://motionsites.ai/assets/hero-space-voyage-preview-eECLH3Yc.gif',
-  'https://motionsites.ai/assets/hero-codenest-preview-Cgppc2qV.gif',
-  'https://motionsites.ai/assets/hero-vex-ventures-preview-BczMFIiw.gif',
-  'https://motionsites.ai/assets/hero-stellar-ai-v2-preview-DjvxjG3C.gif',
-  'https://motionsites.ai/assets/hero-asme-preview-B_nGDnTP.gif',
-  'https://motionsites.ai/assets/hero-transform-data-preview-Cx5OU29N.gif',
-  'https://motionsites.ai/assets/hero-vitara-preview-Cjz2QYyU.gif',
-  'https://motionsites.ai/assets/hero-terra-preview-BFjrCr7T.gif',
-  'https://motionsites.ai/assets/hero-skyelite-preview-DHaZIgUv.gif',
-  'https://motionsites.ai/assets/hero-aethera-preview-DknSlcTa.gif',
-  'https://motionsites.ai/assets/hero-designpro-preview-D8c5_een.gif',
-  'https://motionsites.ai/assets/hero-stellar-ai-preview-D3HL6bw1.gif',
-  'https://motionsites.ai/assets/hero-xportfolio-preview-D4A8maiC.gif',
-  'https://motionsites.ai/assets/hero-orbit-web3-preview-BXt4OttD.gif',
-  'https://motionsites.ai/assets/hero-nexora-preview-cx5HmUgo.gif',
-  'https://motionsites.ai/assets/hero-evr-ventures-preview-DZxeVFEX.gif',
-  'https://motionsites.ai/assets/hero-planet-orbit-preview-DWAP8Z1P.gif',
-  'https://motionsites.ai/assets/hero-new-era-preview-CocuDUm9.gif',
-  'https://motionsites.ai/assets/hero-wealth-preview-B70idl_u.gif',
-  'https://motionsites.ai/assets/hero-luminex-preview-CxOP7ce6.gif',
-  'https://motionsites.ai/assets/hero-celestia-preview-0yO3jXO8.gif',
+  '/marquee/marquee-01.jpg',
+  '/marquee/marquee-02.jpg',
+  '/marquee/marquee-03.jpg',
+  '/marquee/marquee-04.jpg',
+  '/marquee/marquee-05.jpg',
+  '/marquee/marquee-06.jpg',
+  '/marquee/marquee-07.jpg',
+  '/marquee/marquee-08.jpg',
+  '/marquee/marquee-09.jpg',
+  '/marquee/marquee-10.jpg',
+  '/marquee/marquee-11.jpg',
+  '/marquee/marquee-12.jpg',
+  '/marquee/marquee-13.jpg',
+  '/marquee/marquee-14.jpg',
+  '/marquee/marquee-15.jpg',
+  '/marquee/marquee-16.jpg',
+  '/marquee/marquee-17.jpg',
+  '/marquee/marquee-18.jpg',
+  '/marquee/marquee-19.jpg',
+  '/marquee/marquee-20.jpg',
 ];
 
 const projects = [
@@ -307,6 +306,7 @@ function HeroPortrait() {
               loop
               muted
               playsInline
+              preload="auto"
               disablePictureInPicture
               controlsList="nodownload noplaybackrate noremoteplayback"
               tabIndex={-1}
@@ -453,8 +453,8 @@ function HeroSection() {
 }
 
 function MarqueeSection() {
-  const rowOne = marqueeImages.slice(0, 11);
-  const rowTwo = marqueeImages.slice(11);
+  const rowOne = marqueeImages.slice(0, 10);
+  const rowTwo = marqueeImages.slice(10);
 
   return (
     <section className="overflow-hidden bg-[#0C0C0C] pt-8 pb-10 sm:pt-10 md:pt-12">
@@ -488,13 +488,10 @@ function MarqueeRow({
       style={{ willChange: 'transform' }}
     >
       {[...images, ...images].map((src, index) => {
-        const isFirstPass = index < images.length;
-
         return (
           <MarqueeTile
             key={`${src}-${index}`}
             src={src}
-            priority={isFirstPass}
           />
         );
       })}
@@ -502,7 +499,7 @@ function MarqueeRow({
   );
 }
 
-function MarqueeTile({ src, priority }: { src: string; priority: boolean }) {
+function MarqueeTile({ src }: { src: string }) {
   const imageRef = React.useRef<HTMLImageElement | null>(null);
   const [isLoaded, setIsLoaded] = React.useState(false);
   const [hasError, setHasError] = React.useState(false);
@@ -535,8 +532,9 @@ function MarqueeTile({ src, priority }: { src: string; priority: boolean }) {
         ref={imageRef}
         src={src}
         alt=""
-        loading={priority ? 'eager' : 'lazy'}
+        loading="lazy"
         decoding="async"
+        fetchPriority="low"
         className={`marquee-tile__image h-full w-full object-cover ${
           isLoaded && !hasError ? 'opacity-100' : 'opacity-0'
         }`}
@@ -1701,7 +1699,7 @@ function ExperienceSection() {
   return (
     <section
       id="experience"
-      className="relative overflow-clip rounded-t-[40px] bg-[#0C0C0C] px-5 py-16 text-[#D7E2EA] sm:rounded-t-[50px] sm:px-8 sm:py-20 md:rounded-t-[60px] md:px-10 md:py-24"
+      className="relative overflow-clip rounded-t-[40px] bg-[#0C0C0C] px-5 pb-10 pt-16 text-[#D7E2EA] sm:rounded-t-[50px] sm:px-8 sm:pb-12 sm:pt-20 md:rounded-t-[60px] md:px-10 md:pb-14 md:pt-24"
     >
       <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(215,226,234,0.06),transparent_24%),radial-gradient(circle_at_20%_18%,rgba(187,204,215,0.12),transparent_30%),radial-gradient(circle_at_82%_48%,rgba(182,0,168,0.15),transparent_34%)]" />
       <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#D7E2EA]/30 to-transparent" />
@@ -1727,7 +1725,7 @@ function ProjectsSection() {
   return (
     <section
       id="projects"
-      className="relative z-10 -mt-10 overflow-hidden rounded-t-[40px] bg-[#0C0C0C] px-4 py-20 sm:-mt-12 sm:rounded-t-[50px] sm:px-6 sm:py-24 md:-mt-14 md:rounded-t-[60px] md:px-8 md:py-32"
+      className="relative z-10 -mt-10 overflow-hidden rounded-t-[40px] bg-[#0C0C0C] px-4 pb-20 pt-14 sm:-mt-12 sm:rounded-t-[50px] sm:px-6 sm:pb-24 sm:pt-16 md:-mt-14 md:rounded-t-[60px] md:px-8 md:pb-32 md:pt-20"
     >
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_18%_10%,rgba(187,204,215,0.08),transparent_28%),radial-gradient(circle_at_82%_34%,rgba(182,0,168,0.13),transparent_32%)]" />
       <div className="relative z-10 mx-auto max-w-7xl">
